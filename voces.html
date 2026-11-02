@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prueba de Voces</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#ffd23f;--ink:#05061a;--card:#0d1450;--line:#5b6bd6;--blue1:#2a3fb8;--blue2:#1f2f94;--red:#ff2a2a;--white:#f7f4ff;--soft:#b9c2ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(180deg,#07082a,#140a3c 60%,#2a0b4a);background-attachment:fixed;color:var(--white);font-family:'VT323',monospace;font-size:22px;padding:16px}
+.wrap{max-width:1200px;margin:0 auto}
+h1{font-family:'Press Start 2P',monospace;font-size:18px;color:var(--gold);text-shadow:3px 3px 0 #b3001b;margin-bottom:8px;line-height:1.5}
+h3{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--gold);margin-bottom:12px}
+p{color:var(--soft);margin-bottom:14px}
+.card{background:var(--card);box-shadow:inset 0 0 0 4px var(--gold),inset 0 0 0 7px var(--ink);padding:20px;margin-bottom:16px}
+.voice{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px;background:var(--ink);margin-bottom:8px;box-shadow:inset 0 0 0 3px #26307a}
+.voice.nat{box-shadow:inset 0 0 0 3px var(--gold)}
+.voice .nm{font-size:24px}
+.voice .nm small{display:block;color:var(--soft);font-size:18px}
+.tag{font-family:'Press Start 2P',monospace;font-size:8px;background:var(--gold);color:var(--ink);padding:3px 5px;margin-left:6px;vertical-align:3px}
+.styles{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+button{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--white);background:var(--blue1);border:0;padding:10px;cursor:pointer;box-shadow:inset 0 0 0 3px var(--line),inset 0 -5px 0 3px var(--blue2)}
+button:hover{filter:brightness(1.2)}
+button:active{transform:translate(2px,2px)}
+button.red{background:#b3001b;box-shadow:inset 0 0 0 3px var(--red)}
+label{display:flex;align-items:center;gap:10px;color:var(--soft);margin:8px 0}
+input[type=text]{flex:1;font-family:'VT323',monospace;font-size:24px;background:var(--ink);color:var(--white);border:3px solid var(--line);padding:4px 10px}
+input[type=range]{flex:1;accent-color:var(--gold)}
+#last{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gold);line-height:1.8;padding:12px;background:var(--ink)}
+@media (max-width:760px){.voice{grid-template-columns:1fr}.styles{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PRUEBA DE VOZ PARA "ERROR"</h1>
+  <p>Toca un estilo en cualquier voz para escucharlo. Las voces con <span class="tag">NATURAL</span> son las más bonitas (salen en Microsoft Edge). Cuando te guste una, dime el texto amarillo de abajo.</p>
+
+  <div class="card">
+    <h3>ÚLTIMA QUE ESCUCHASTE</h3>
+    <div id="last">Todavía ninguna</div>
+    <label><input type="checkbox" id="withBuzz" checked> Con el sonido de error antes de la voz</label>
+  </div>
+
+  <div class="card">
+    <h3>VOCES EN ESPAÑOL DE ESTE PC <span id="count" style="color:var(--soft)"></span></h3>
+    <div id="list">Cargando voces...</div>
+  </div>
+
+  <div class="card">
+    <h3>PERSONALIZADO</h3>
+    <label>Texto <input type="text" id="cText" value="Error."></label>
+    <label>Velocidad <input type="range" id="cRate" min="0.5" max="1.5" step="0.05" value="0.85"><b id="cRateV">0.85</b></label>
+    <label>Tono <input type="range" id="cPitch" min="0.5" max="1.5" step="0.05" value="0.9"><b id="cPitchV">0.90</b></label>
+    <p>Se aplica con el botón "PROBAR" de cada voz.</p>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const STYLES = [
+  {name: 'ELEGANTE', text: 'Error.', rate: .85, pitch: .9},
+  {name: 'DRAMÁTICO', text: 'Errooor...', rate: .7, pitch: .75},
+  {name: 'PRESENTADOR', text: '¡Error!', rate: 1.05, pitch: 1.1},
+  {name: 'SUAVE', text: 'Uy... error.', rate: .9, pitch: 1.15},
+  {name: 'FORMAL', text: 'Respuesta incorrecta.', rate: .9, pitch: .95},
+  {name: 'TABLERO', text: 'No está en el tablero.', rate: .95, pitch: 1}
+];
+
+// Sonido de error del juego, para escuchar la combinación completa
+let ac;
+function buzz() {
+  if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  [[140, 'sawtooth', .2, 70], [147, 'square', .1, 74]].forEach(([f, type, v, f2]) => {
+    const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime;
+    o.type = type; o.frequency.setValueAtTime(f, s); o.frequency.linearRampToValueAtTime(f2, s + .7);
+    g.gain.setValueAtTime(v, s); g.gain.exponentialRampToValueAtTime(.001, s + .7);
+    o.connect(g).connect(ac.destination); o.start(s); o.stop(s + .72);
+  });
+}
+
+let voices = [];
+function say(v, st) {
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(st.text);
+  u.voice = v; u.lang = v.lang; u.rate = st.rate; u.pitch = st.pitch;
+  $('#last').textContent = `VOZ: ${v.name} · ESTILO: ${st.name} · "${st.text}" · vel ${st.rate} · tono ${st.pitch}`;
+  if ($('#withBuzz').checked) { buzz(); setTimeout(() => speechSynthesis.speak(u), 450); }
+  else speechSynthesis.speak(u);
+}
+
+function render() {
+  voices = speechSynthesis.getVoices()
+    .filter(v => v.lang.toLowerCase().startsWith('es'))
+    .sort((a, b) => (/natural/i.test(b.name) - /natural/i.test(a.name)) || a.lang.localeCompare(b.lang));
+  $('#count').textContent = `(${voices.length})`;
+  if (!voices.length) {
+    $('#list').innerHTML = '<p>No se encontraron voces en español. Abre esta página en Microsoft Edge, que trae voces naturales gratis.</p>';
+    return;
+  }
+  $('#list').innerHTML = voices.map((v, i) => {
+    const nat = /natural/i.test(v.name);
+    return `<div class="voice ${nat ? 'nat' : ''}"><div class="nm">${v.name.replace(/</g, '&lt;')}${nat ? '<span class="tag">NATURAL</span>' : ''}<small>${v.lang}${v.localService ? ' · sin internet' : ' · requiere internet'}</small></div>
+      <div class="styles">${STYLES.map((s, j) => `<button data-v="${i}" data-s="${j}">${s.name}</button>`).join('')}<button class="red" data-v="${i}" data-s="c">PROBAR</button></div></div>`;
+  }).join('');
+}
+$('#list').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const st = b.dataset.s === 'c'
+    ? {name: 'PERSONALIZADO', text: $('#cText').value, rate: +$('#cRate').value, pitch: +$('#cPitch').value}
+    : STYLES[+b.dataset.s];
+  say(voices[+b.dataset.v], st);
+});
+['cRate', 'cPitch'].forEach(id => $('#' + id).addEventListener('input', e => $('#' + id + 'V').textContent = (+e.target.value).toFixed(2)));
+speechSynthesis.onvoiceschanged = render;
+render();
+</script>
+</body>
+</html>

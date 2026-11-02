@@ -225,7 +225,7 @@ addEventListener('resize', fit); fit();
 /* ---------- sonido chiptune ---------- */
 // Buses: efectos y música -> master -> salida. Volúmenes controlados desde config.html
 let ac = null, master, sfxBus, musicBus, noiseBuf;
-const AUD = Object.assign({muted: false, musicOn: true, musicVol: .5, sfxVol: .8},
+const AUD = Object.assign({muted: false, musicOn: true, musicVol: .5, sfxVol: .8, voiceOn: true},
   (() => { try { return JSON.parse(localStorage.getItem('crg-audio')) || {}; } catch (e) { return {}; } })());
 let muted = AUD.muted;
 function applyAudio() {
@@ -278,6 +278,26 @@ const SFX = {
   select() { tone(880, .08, 'square', 0, .08); tone(1320, .1, 'square', .06, .08); },
   nope() { tone(220, .12, 'square', 0, .08); }
 };
+
+/* ---------- voz del error (Web Speech API) ---------- */
+// Voz preferida: Juan Natural (Costa Rica, solo en Edge con internet). Si no existe, otra voz en español
+const VOICE = {prefer: /juan.*costa rica|juan.*es-cr/i, text: 'Error.', rate: .85, pitch: .9, delay: 450};
+function pickVoice() {
+  const vs = speechSynthesis.getVoices(), es = vs.filter(v => /^es/i.test(v.lang));
+  return vs.find(v => VOICE.prefer.test(v.name + ' ' + v.lang))
+    || es.find(v => /natural/i.test(v.name)) || es[0] || null;
+}
+function sayError() {
+  if (!('speechSynthesis' in window) || !AUD.voiceOn || muted) return;
+  setTimeout(() => {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(VOICE.text), v = pickVoice();
+    if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-ES';
+    u.rate = VOICE.rate; u.pitch = VOICE.pitch; u.volume = AUD.sfxVol;
+    speechSynthesis.speak(u);
+  }, VOICE.delay);
+}
+if ('speechSynthesis' in window) speechSynthesis.getVoices();
 
 /* ---------- música (composición original, secuenciador en corcheas) ---------- */
 // Cada compás: bajo, acorde (arpegio) y 8 notas de melodía ('.' = sostener la anterior)
@@ -469,7 +489,7 @@ function bigX(n) {
   const x = $('#bigx'), w = $('#world');
   x.innerHTML = xsvg().repeat(n); x.classList.add('show');
   w.classList.remove('shake'); void w.offsetWidth; w.classList.add('shake');
-  SFX.strike();
+  SFX.strike(); sayError();
   clearTimeout(xT); xT = setTimeout(() => x.classList.remove('show'), 1000);
 }
 function flashTeam(t) { const e = $('#team' + t); e.classList.remove('flash'); void e.offsetWidth; e.classList.add('flash'); }
@@ -632,7 +652,7 @@ let camMode = 0;
 function cycleCam() { camMode = (camMode + 1) % 3; $('#cam').className = camMode ? 'k' + camMode : ''; }
 
 /* ---------- sincronización con config.html ---------- */
-function sync() { CRG.send({type: 'state', S, screen, muted, camMode, musicOn: AUD.musicOn, musicVol: AUD.musicVol, sfxVol: AUD.sfxVol}); }
+function sync() { CRG.send({type: 'state', S, screen, muted, camMode, musicOn: AUD.musicOn, musicVol: AUD.musicVol, sfxVol: AUD.sfxVol, voiceOn: AUD.voiceOn}); }
 setInterval(sync, 1000);
 
 const CMD = {
@@ -640,6 +660,7 @@ const CMD = {
   rest: revealRest, next, prev, goto: q => goQuestion(q), adjust: a => adjust(a.t, a.d),
   start, title: () => setScreen('title'), final: showFinal, mute: () => { muted = !muted; applyAudio(); },
   music: () => { AUD.musicOn = !AUD.musicOn; applyAudio(); },
+  voice: () => { AUD.voiceOn = !AUD.voiceOn; applyAudio(); },
   vol: a => { if (a.music !== undefined) AUD.musicVol = +a.music; if (a.sfx !== undefined) AUD.sfxVol = +a.sfx; applyAudio(); },
   cam: cycleCam, player: a => { S.player[a.t] = a.i; renderPlayers(); }, nextPlayer: t => nextPlayer(t),
   newgame: resetGame

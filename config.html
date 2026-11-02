@@ -148,9 +148,10 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
         <div class="btns"><button data-cmd="cam">COLOR CAM</button></div>
         <h3 style="margin-top:22px">AUDIO</h3>
         <div class="btns"><button data-cmd="music" id="musicBtn">MUSICA: SI</button><button data-cmd="mute" id="muteBtn">SONIDO: SI</button></div>
+        <div class="btns"><button data-cmd="voice" id="voiceBtn">VOZ ERROR: SI</button></div>
         <label>Volumen música: <b id="mvLbl">-</b></label>
         <input type="range" id="mVol" min="0" max="100" step="1">
-        <label>Volumen efectos: <b id="svLbl">-</b></label>
+        <label>Volumen efectos y voz: <b id="svLbl">-</b></label>
         <input type="range" id="sVol" min="0" max="100" step="1">
         <p class="note">Teclado: 1-6 destapar · X error · Borrar deshacer · A/B turno · Espacio bolsa · R restantes · ← →</p>
         <div class="btns"><button class="danger" id="newGame">NUEVO JUEGO</button></div>
@@ -231,7 +232,7 @@ document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click',
 CRG.on(m => {
   if (m.type !== 'state') return;
   st = m; lastSt = Date.now();
-  const key = JSON.stringify([m.S, m.screen, m.muted, m.musicOn, m.musicVol, m.sfxVol]);
+  const key = JSON.stringify([m.S, m.screen, m.muted, m.musicOn, m.musicVol, m.sfxVol, m.voiceOn]);
   if (key !== lastKey) { lastKey = key; renderLive(); }
   renderConn();
 });
@@ -279,6 +280,7 @@ function renderLive(force) {
   sel2.value = S.q;
   $('#muteBtn').textContent = st.muted ? 'SONIDO: NO' : 'SONIDO: SI';
   $('#musicBtn').textContent = st.musicOn ? 'MUSICA: SI' : 'MUSICA: NO';
+  $('#voiceBtn').textContent = st.voiceOn === false ? 'VOZ ERROR: NO' : 'VOZ ERROR: SI';
   [['#mVol', '#mvLbl', st.musicVol], ['#sVol', '#svLbl', st.sfxVol]].forEach(([r, l, v]) => {
     if (v === undefined || document.activeElement === $(r)) return;
     $(r).value = Math.round(v * 100); $(l).textContent = Math.round(v * 100) + '%';
