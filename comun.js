@@ -23,6 +23,8 @@ const CRG = (() => {
     return {
       titulo: String(src.titulo || def.titulo),
       subtitulo: String(src.subtitulo ?? def.subtitulo),
+      tiempo: Math.min(120, Math.max(5, parseInt(src.tiempo, 10) || 15)),
+      autoError: src.autoError !== false,
       equipos: [0, 1].map(t => {
         const e = (src.equipos || [])[t] || def.equipos[t] || {};
         const j = Array.isArray(e.jugadores) ? e.jugadores : [];

@@ -110,11 +110,29 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .vs .a{color:var(--t0)}.vs .b{color:var(--t1)}.vs b{color:var(--gold);font-size:44px}
 .press{font-size:32px;animation:blink 1s steps(2) infinite}
 .hint{font-size:14px;color:var(--soft);line-height:2}
+#final{gap:28px}
 #final .fl{font-size:36px;color:var(--soft)}
-#fwin{font-size:76px;text-shadow:6px 6px 0 #000}
+#final .hint{position:absolute;bottom:18px}
+#fsus{font-size:52px;color:var(--gold);text-shadow:5px 5px 0 #000;animation:blink .6s steps(2) infinite}
+#fres{display:none;flex-direction:column;align-items:center;gap:28px}
+#final.rev #fsus{display:none}
+#final.rev #fres{display:flex}
+#trophy svg{width:200px;height:200px;filter:drop-shadow(6px 6px 0 #000);animation:pop .5s steps(4) both,bob 1.6s steps(4) .5s infinite}
+#fwin{font-size:76px;text-shadow:6px 6px 0 #000;animation:pop .5s steps(4) .2s both}
+#fplayers{display:flex;gap:34px}
+#fplayers div{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:14px;text-shadow:3px 3px 0 #000;animation:bob .8s steps(2) infinite;animation-delay:var(--d)}
+#fplayers svg{width:96px;height:96px}
 .fs{display:flex;gap:120px;font-size:28px}
 .fs div{display:flex;flex-direction:column;gap:22px}
 .fs b{font-size:64px;color:var(--gold);text-shadow:5px 5px 0 #000}
+.fs .win span{color:var(--gold)}
+.fs .win b{animation:blink .8s steps(2) 1.6s infinite}
+#fcred{position:absolute;left:0;right:0;bottom:62px;overflow:hidden;white-space:nowrap;font-size:18px;color:var(--soft);text-shadow:3px 3px 0 #000}
+#fcred span{display:inline-block;padding-left:100%;animation:marq 24s linear infinite}
+@keyframes marq{to{transform:translateX(-100%)}}
+.fw{position:absolute;pointer-events:none}
+.fw i{position:absolute;width:10px;height:10px;background:var(--c);animation:burst 1.1s steps(8) forwards}
+@keyframes burst{to{transform:translate(var(--x),var(--y));opacity:0}}
 .conf{position:absolute;top:-30px;width:16px;height:16px;animation:fall linear infinite}
 @keyframes fall{to{transform:translateY(1150px) rotate(720deg)}}
 
@@ -127,6 +145,32 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #help p{margin-top:28px;font-size:13px;color:var(--soft);line-height:2}
 #sndHint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:96;font-size:12px;color:var(--gold);background:var(--ink);padding:8px 14px;cursor:pointer;animation:blink 1.2s steps(2) infinite}
 #sndHint.hide{display:none}
+
+/* temporizador */
+#timer{position:absolute;right:36px;top:16px;display:none;align-items:center;gap:14px}
+#timer.on{display:flex}
+#timer .bar{width:300px;height:26px;padding:5px;background:var(--ink);box-shadow:inset 0 0 0 3px var(--gold)}
+#timer .bar i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--gold) 0 14px,transparent 14px 18px)}
+#timer b{width:64px;text-align:right;font-size:24px;color:var(--gold);text-shadow:3px 3px 0 #000}
+#timer.hot .bar{box-shadow:inset 0 0 0 3px var(--red)}
+#timer.hot .bar i{background:repeating-linear-gradient(90deg,var(--red) 0 14px,transparent 14px 18px)}
+#timer.hot b{color:var(--red);animation:blink .5s steps(2) infinite}
+
+/* presentación de equipos */
+#intro{gap:60px}
+.iteam{font-size:64px;color:var(--tc);text-shadow:6px 6px 0 #000;animation:pop .4s steps(4) both}
+.irow{display:flex;gap:36px}
+.icard{width:300px;padding:26px 16px;display:flex;flex-direction:column;align-items:center;gap:18px;clip-path:var(--notch);background:linear-gradient(#141c66 0 50%,#10175a 50%);box-shadow:inset 0 0 0 6px var(--tc),inset 0 0 0 10px var(--ink);animation:drop .45s steps(5) both;animation-delay:var(--d)}
+@keyframes drop{from{transform:translateY(-900px)}to{transform:none}}
+.icard svg{width:180px;height:180px;background:var(--ink);box-shadow:inset 0 0 0 4px var(--tc)}
+.icard .pi{font-size:12px;color:var(--tc)}
+.icard .pn{font-size:18px;line-height:1.5;text-align:center;overflow-wrap:anywhere;text-shadow:3px 3px 0 #000}
+.ivs{display:flex;align-items:center;gap:90px}
+.ivs .side{font-size:60px;text-shadow:6px 6px 0 #000;animation:slideL .5s steps(5) both}
+.ivs .side.r{animation-name:slideR}
+.ivs b{font-size:160px;color:var(--gold);text-shadow:10px 10px 0 #b3001b;animation:pop .5s steps(4) .5s both}
+@keyframes slideL{from{transform:translateX(-1200px)}to{transform:none}}
+@keyframes slideR{from{transform:translateX(1200px)}to{transform:none}}
 </style>
 </head>
 <body>
@@ -148,7 +192,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <div id="camFrame"><div id="cam"></div></div>
       <div id="strikes"></div>
     </div>
-    <div id="qbox"><div id="qlabel">PREGUNTA 1</div><div id="question"></div></div>
+    <div id="qbox"><div id="qlabel">PREGUNTA 1</div><div id="timer"><div class="bar"><i></i></div><b>15</b></div><div id="question"></div></div>
   </section>
 
   <section id="board"></section>
@@ -167,10 +211,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
   <div id="final" class="screen">
     <div class="fl">FIN DEL JUEGO</div>
-    <div id="fwin"></div>
-    <div class="fs"><div><span id="fn0"></span><b id="fs0"></b></div><div><span id="fn1"></span><b id="fs1"></b></div></div>
+    <div id="fsus">Y EL GANADOR ES...</div>
+    <div id="fres">
+      <div id="trophy"></div>
+      <div id="fwin"></div>
+      <div id="fplayers"></div>
+      <div class="fs"><div><span id="fn0"></span><b id="fs0"></b></div><div><span id="fn1"></span><b id="fs1"></b></div></div>
+    </div>
+    <div id="fcred"><span></span></div>
     <div class="hint">FLECHA IZQ: VOLVER &nbsp;·&nbsp; SHIFT+N: NUEVO JUEGO</div>
   </div>
+
+  <div id="intro" class="screen"></div>
 
   <div id="help"><div class="box">
     <h2>CONTROLES DEL PRESENTADOR</h2>
@@ -181,6 +233,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <tr><td>A / B / CLIC</td><td>Elegir equipo en turno</td></tr>
       <tr><td>ESPACIO</td><td>Dar la bolsa al equipo en turno</td></tr>
       <tr><td>R</td><td>Mostrar respuestas restantes (sin puntos)</td></tr>
+      <tr><td>T</td><td>Iniciar / parar temporizador</td></tr>
+      <tr><td>I</td><td>Presentación de equipos</td></tr>
       <tr><td>FLECHA DER / IZQ</td><td>Siguiente / anterior pregunta</td></tr>
       <tr><td>+ / -</td><td>Ajustar 5 pts al equipo en turno</td></tr>
       <tr><td>C · M · P · F</td><td>Color cámara · Silenciar todo · Música · Pantalla completa</td></tr>
@@ -279,6 +333,45 @@ const SFX = {
   nope() { tone(220, .12, 'square', 0, .08); }
 };
 
+/* ---------- botonera del presentador (todo sintetizado) ---------- */
+function nz(d, s, v, type, freq, out = sfxBus) {
+  const n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+  n.buffer = noiseBuf; f.type = type; f.frequency.value = freq;
+  g.gain.setValueAtTime(v, s); g.gain.exponentialRampToValueAtTime(.001, s + d);
+  n.connect(f).connect(g).connect(out); n.start(s); n.stop(s + d + .02);
+}
+const BOARD = {
+  aplausos() {
+    const t0 = ac.currentTime;
+    for (let i = 0; i < 110; i++) { const t = Math.random() * 2.6; nz(.03, t0 + t, .12 * (1 - t / 3), 'bandpass', 900 + Math.random() * 1800); }
+  },
+  redoble() {
+    const t0 = ac.currentTime;
+    for (let t = 0; t < 2.2; t += .045) nz(.05, t0 + t, .02 + t * .06, 'highpass', 1200);
+    nz(1.4, t0 + 2.25, .25, 'highpass', 4000);
+    osc(150, .3, 'sine', t0 + 2.25, .5, sfxBus, 40);
+  },
+  ooh() {
+    const t0 = ac.currentTime;
+    [[392, 294], [494, 370], [587, 440]].forEach(([a, b]) => osc(a, 1.4, 'triangle', t0, .1, sfxBus, b));
+  },
+  risas() {
+    const t0 = ac.currentTime;
+    [700, 660, 620, 580, 540, 500].forEach((f, i) => osc(f, .1, 'square', t0 + i * .15, .08, sfxBus, f * .8));
+  },
+  trombon() {
+    const t0 = ac.currentTime;
+    [[311, .45], [294, .45], [277, .45], [262, 1.3]].reduce((t, [f, d]) => { osc(f, d, 'sawtooth', t0 + t, .12, sfxBus, f * .97); return t + d + .05; }, 0);
+  },
+  suspenso() {
+    const t0 = ac.currentTime;
+    for (let i = 0; i < 16; i++) osc(220 * Math.pow(2, i / 12), .14, 'square', t0 + i * .13, .05 + i * .004, sfxBus);
+  },
+  correcto() { [1319, 1760, 2637].forEach((f, i) => tone(f, .5, 'triangle', i * .08, .12)); },
+  bocina() { [0, .25, .5].forEach(t => { tone(466, .2, 'square', t, .12); tone(233, .2, 'sawtooth', t, .08); }); },
+  fanfarria() { SFX.win(); }
+};
+
 /* ---------- voz del error (Web Speech API) ---------- */
 // Voz preferida: Juan Natural (Costa Rica, solo en Edge con internet). Si no existe, otra voz en español
 const VOICE = {prefer: /juan.*costa rica|juan.*es-cr/i, text: 'Error.', rate: .85, pitch: .9, delay: 450};
@@ -321,6 +414,35 @@ const TRACKS = {
     ['F1', 'F3 A3 C4', 'A4 . . . C5 . F5 .'],
     ['C2', 'C4 E4 G4', 'E5 . D5 . C5 . G4 .'],
     ['E2', 'E3 G#3 B3', 'B4 . . . G#4 . . .']
+  ]},
+  // Temporizador corriendo: pulso lento y tenso
+  tension: {bpm: 126, lead: .035, hat16: false, bars: [
+    ['A1', 'A3 C4 E4', 'E5 . . . E5 . D#5 .'],
+    ['A1', 'A3 C4 F4', 'F5 . . . F5 . E5 .'],
+    ['A1', 'A3 C4 E4', 'E5 . . . E5 . D#5 .'],
+    ['G#1', 'G#3 B3 E4', 'E5 . D5 . C5 . B4 .']
+  ]},
+  // Oportunidad de robo: rápido y en menor
+  steal: {bpm: 152, lead: .05, hat16: true, bars: [
+    ['E2', 'E3 G3 B3', 'B4 E5 G5 E5 B4 E5 G5 E5'],
+    ['C2', 'C3 E3 G3', 'C5 E5 G5 E5 C5 E5 G5 E5'],
+    ['D2', 'D3 F#3 A3', 'D5 F#5 A5 F#5 D5 F#5 A5 F#5'],
+    ['B1', 'B2 D#3 F#3', 'D#5 F#5 B5 F#5 D#5 . B4 .'],
+    ['E2', 'E3 G3 B3', 'G5 . F#5 . E5 . B4 .'],
+    ['C2', 'C3 E3 G3', 'C5 . E5 . G5 . C6 .'],
+    ['A1', 'A2 C3 E3', 'A5 G5 F#5 E5 D#5 E5 F#5 G5'],
+    ['B1', 'B2 D#3 F#3', 'F#5 . D#5 . B4 . . .']
+  ]},
+  // Pantalla de ganador
+  victory: {bpm: 132, lead: .06, hat16: true, bars: [
+    ['C2', 'C4 E4 G4', 'C5 . E5 . G5 . C6 .'],
+    ['F1', 'F3 A3 C4', 'A5 . G5 . F5 . A5 .'],
+    ['G1', 'G3 B3 D4', 'B5 . A5 . G5 . D6 .'],
+    ['C2', 'C4 E4 G4', 'C6 . G5 . E5 . C5 .'],
+    ['A1', 'A3 C4 E4', 'E5 . A5 . C6 . A5 .'],
+    ['F1', 'F3 A3 C4', 'F5 . A5 . C6 . A5 .'],
+    ['G1', 'G3 B3 D4', 'G5 A5 B5 C6 D6 . B5 .'],
+    ['C2', 'C4 E4 G4', 'C6 . . . G5 . C6 .']
   ]}
 };
 const SEMI = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
@@ -344,9 +466,17 @@ function playStep(T, step, s, dt) {
   if (T.hat16) noise(.025, s + dt / 2, .02, 8000, out);
 }
 const mus = {track: null, step: 0, next: 0};
+// Pista según la fase: robo > temporizador > juego normal; en el final, silencio durante el redoble
+function musicFor() {
+  if (!AUD.musicOn) return null;
+  if (screen === 'final') return finalStage ? 'victory' : null;
+  if (screen !== 'game') return 'title';
+  if (S.phase === 'steal') return 'steal';
+  return S.timer ? 'tension' : 'game';
+}
 setInterval(() => {
   if (!ac || ac.state !== 'running') return;
-  const want = AUD.musicOn ? (screen === 'game' ? 'game' : 'title') : null;
+  const want = musicFor();
   if (want !== mus.track) { mus.track = want; mus.step = 0; mus.next = ac.currentTime + .08; }
   if (!want) return;
   const T = TRACKS[want], dt = 60 / T.bpm / 2;
@@ -361,8 +491,8 @@ setInterval(() => {
 /* ---------- estado ---------- */
 // Sin persistencia: recargar la página (F5) reinicia la partida (la configuración se conserva)
 let screen = 'title';
-const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, player: [0, 0]});
-function resetQuestion(q) { Object.assign(S, {q, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null}); }
+const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, player: [0, 0], timer: null});
+function resetQuestion(q) { Object.assign(S, {q, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, timer: null}); }
 let S = fresh();
 try { localStorage.removeItem('cien-retro-gamers-v1'); } catch (e) {}
 
@@ -398,10 +528,14 @@ for (let i = 0; i < 3; i++) {
   d.addEventListener('click', () => { strike(); sync(); });
   $('#strikes').appendChild(d);
 }
-$('#title').addEventListener('click', () => { start(); sync(); });
-document.addEventListener('pointerdown', audio);
+// En el título, el primer toque solo despierta el sonido (arranca la música); el siguiente empieza el juego
+let wake = false;
+const gesture = () => { wake = !(ac && ac.state === 'running'); audio(); };
+$('#title').addEventListener('click', () => { if (!wake) { start(); sync(); } });
+document.addEventListener('pointerdown', gesture);
 applyConfig();
-soundHint();
+// Intenta sonar desde el inicio: funciona si el navegador permite autoplay (ver iniciar-evento.bat)
+audio();
 
 /* ---------- render ---------- */
 let slots = [];
@@ -465,7 +599,7 @@ function renderQuestion(type) {
     if (i < text.length) setTimeout(step, 30);
   })();
 }
-function renderAll(type) { renderTeams(); renderScores(); renderStrikes(); renderMeta(); renderBoard(); renderQuestion(type); }
+function renderAll(type) { renderTeams(); renderScores(); renderStrikes(); renderMeta(); renderBoard(); renderQuestion(type); renderTimer(); }
 
 /* ---------- efectos ---------- */
 function animNum(el, from, to, ms) {
@@ -510,6 +644,7 @@ function reveal(i) {
   const A = answers();
   if (i >= A.length || S.revealed[i]) return;
   const who = answering(), phase = S.phase;
+  stopTimer();
   S.revealed[i] = true;
   if (phase === 'done') { S.unearned[i] = true; slots[i].classList.add('unearned'); }
   slots[i].classList.add('open');
@@ -527,6 +662,7 @@ function reveal(i) {
 
 function strike() {
   if (screen !== 'game') return;
+  stopTimer();
   if (S.phase === 'play' && S.strikes < 3) {
     S.strikes++; renderStrikes(); bigX(S.strikes);
     nextPlayer(S.active);
@@ -556,6 +692,7 @@ function award(t, msg, delay = 0) {
   if (S.phase === 'done') return;
   const amount = S.pot, from = S.scores[t];
   S.phase = 'done'; S.scores[t] += amount; S.pot = 0; S.steal = null;
+  stopTimer();
   setTimeout(() => {
     renderTeams();
     animNum($('#team' + t).querySelector('.score'), from, S.scores[t], 1200);
@@ -599,12 +736,79 @@ function prev() {
   else if (S.q > 0) goQuestion(S.q - 1);
 }
 
+/* ---------- temporizador por respuesta ---------- */
+let lastSec = null;
+function startTimer() {
+  if (screen !== 'game' || S.phase === 'done') return SFX.nope();
+  S.timer = {end: Date.now() + CFG.tiempo * 1000, total: CFG.tiempo};
+  lastSec = null; renderTimer(); SFX.select();
+}
+function stopTimer() { if (S.timer) { S.timer = null; renderTimer(); } }
+function toggleTimer() { S.timer ? stopTimer() : startTimer(); }
+function renderTimer() {
+  const el = $('#timer'), on = !!S.timer;
+  el.classList.toggle('on', on);
+  if (!on) return;
+  const left = Math.max(0, (S.timer.end - Date.now()) / 1000);
+  el.querySelector('i').style.width = (left / S.timer.total * 100) + '%';
+  el.querySelector('b').textContent = Math.ceil(left);
+  el.classList.toggle('hot', left <= 5);
+}
+setInterval(() => {
+  if (!S.timer) return;
+  const left = (S.timer.end - Date.now()) / 1000, sec = Math.ceil(left);
+  if (sec !== lastSec && sec > 0) { lastSec = sec; sec <= 5 ? tone(1400, .08, 'square', 0, .1) : tone(900, .03, 'square', 0, .05); }
+  if (left > 0) return renderTimer();
+  S.timer = null; renderTimer();
+  banner('¡TIEMPO!', CFG.autoError ? 'CUENTA COMO ERROR' : '', '#ff2a2a', 1300);
+  CFG.autoError ? strike() : SFX.nope();
+  sync();
+}, 100);
+
+/* ---------- presentación de equipos ---------- */
+// Avatar pixel tipo "invasor", único por nombre (simétrico 7x7)
+function avatar(name, color) {
+  let h = 2166136261;
+  for (const c of name) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  let r = '';
+  for (let y = 0; y < 7; y++) for (let x = 0; x < 4; x++) {
+    if (!((h >>> (y * 4 + x)) & 1) && !(x === 3 && y > 0 && y < 6)) continue;
+    r += `<rect x="${x + 1}" y="${y + 1}" width="1" height="1"/>`;
+    if (x < 3) r += `<rect x="${7 - x}" y="${y + 1}" width="1" height="1"/>`;
+  }
+  return `<svg viewBox="0 0 9 9" shape-rendering="crispEdges" fill="${color}">${r}</svg>`;
+}
+let seqT = [];
+function intro() {
+  setScreen('intro');
+  const step = 450, hold = 2600, ms = 300 + 5 * step + hold;
+  const show = t => {
+    const ps = playersOf(t), c = teamColor(t);
+    $('#intro').innerHTML = `<div class="iteam" style="--tc:${c}">${esc(teamName(t))}</div>`
+      + `<div class="irow">${ps.map((p, i) => `<div class="icard" style="--tc:${c};--d:${(300 + i * step) / 1000}s">${avatar(p, c)}`
+      + `<div class="pi">JUGADOR ${i + 1}</div><div class="pn">${esc(p)}</div></div>`).join('')}</div>`;
+    SFX.start();
+    ps.forEach((_, i) => seqT.push(setTimeout(SFX.select, 300 + (i + 1) * step)));
+  };
+  show(0);
+  seqT.push(setTimeout(() => show(1), ms));
+  seqT.push(setTimeout(() => {
+    $('#intro').innerHTML = `<div class="ivs"><div class="side" style="color:${teamColor(0)}">${esc(teamName(0))}</div><b>VS</b>`
+      + `<div class="side r" style="color:${teamColor(1)}">${esc(teamName(1))}</div></div><div class="press">PREPARADOS...</div>`;
+    SFX.strike(); seqT.push(setTimeout(SFX.award, 500));
+  }, ms * 2));
+}
+
 function setScreen(name) {
+  seqT.forEach(clearTimeout); seqT = [];
+  clearInterval(fwT); finalStage = false;
+  if (name !== 'game') S.timer = null;
+  $('#intro').classList.toggle('show', name === 'intro');
   screen = name;
   $('#title').classList.toggle('show', name === 'title');
   $('#final').classList.toggle('show', name === 'final');
   $('#world').classList.toggle('onscreen', name !== 'game');
-  document.querySelectorAll('.conf').forEach(c => c.remove());
+  document.querySelectorAll('.conf,.fw').forEach(c => c.remove());
 }
 
 function start() {
@@ -618,20 +822,72 @@ function start() {
   });
 }
 
+/* ---------- pantalla de ganador ---------- */
+let fwT = null, finalStage = false;
+const TROPHY = [
+  '..##########..',
+  '###o######d###',
+  '#.#o######d#.#',
+  '#.#o######d#.#',
+  '.##o######d##.',
+  '...#o#####d#..',
+  '....######....',
+  '.....####.....',
+  '......##......',
+  '......##......',
+  '.....####.....',
+  '....dddddd....',
+  '...bbbbbbbb...',
+  '...bbbbbbbb...'
+];
+function trophySvg() {
+  const col = {'#': '#ffd23f', o: '#fff7b0', d: '#ff9f1c', b: '#7a4a12'};
+  let r = '';
+  TROPHY.forEach((row, y) => [...row].forEach((ch, x) => { if (col[ch]) r += `<rect x="${x}" y="${y}" width="1" height="1" fill="${col[ch]}"/>`; }));
+  return `<svg viewBox="0 0 14 14" shape-rendering="crispEdges">${r}</svg>`;
+}
+const finalCols = () => [teamColor(0), teamColor(1), '#ffd23f', '#ff9f1c', '#7dff6a', '#f7f4ff'];
+function firework() {
+  const fw = document.createElement('div'), cols = finalCols(), c = cols[Math.floor(Math.random() * cols.length)];
+  fw.className = 'fw';
+  fw.style.cssText = `left:${150 + Math.random() * 1620}px;top:${100 + Math.random() * 420}px`;
+  for (let i = 0; i < 16; i++) {
+    const ang = i / 16 * Math.PI * 2, d = 110 + Math.random() * 70;
+    fw.innerHTML += `<i style="--c:${c};--x:${Math.round(Math.cos(ang) * d)}px;--y:${Math.round(Math.sin(ang) * d)}px"></i>`;
+  }
+  $('#final').appendChild(fw);
+  setTimeout(() => fw.remove(), 1200);
+  if (ac) noise(.35, ac.currentTime, .06, 500, sfxBus);
+}
 function showFinal() {
   setScreen('final');
-  const [a, b] = S.scores, w = $('#fwin');
-  if (a === b) { w.textContent = '¡EMPATE!'; w.style.color = 'var(--gold)'; }
-  else { const t = a > b ? 0 : 1; w.textContent = `¡GANA ${teamName(t)}!`; w.style.color = teamColor(t); }
-  $('#fs0').textContent = pad(a); $('#fs1').textContent = pad(b);
-  const cols = [teamColor(0), teamColor(1), '#ffd23f', '#ff9f1c', '#7dff6a', '#f7f4ff'];
-  for (let i = 0; i < 70; i++) {
-    const c = document.createElement('div');
-    c.className = 'conf';
-    c.style.cssText = `left:${Math.random() * 1920}px;background:${cols[i % cols.length]};animation-duration:${2.5 + Math.random() * 3}s;animation-delay:${-Math.random() * 5}s`;
-    $('#final').appendChild(c);
-  }
-  SFX.win();
+  const [a, b] = S.scores, f = $('#final'), w = $('#fwin'), tie = a === b, t = a > b ? 0 : 1;
+  f.classList.remove('rev');
+  w.textContent = tie ? '¡EMPATE!' : `¡GANA ${teamName(t)}!`;
+  w.style.color = tie ? 'var(--gold)' : teamColor(t);
+  $('#trophy').innerHTML = trophySvg();
+  $('#fplayers').innerHTML = (tie ? [0, 1] : [t]).flatMap(k => playersOf(k).map(p => [p, k]))
+    .map(([p, k], i) => `<div style="--d:${-i * .2}s;color:${teamColor(k)}">${avatar(p, teamColor(k))}<span>${esc(p)}</span></div>`).join('');
+  [0, 1].forEach(k => $('#fs' + k).parentNode.classList.toggle('win', !tie && k === t));
+  $('#fs0').textContent = pad(0); $('#fs1').textContent = pad(0);
+  $('#fcred span').textContent = ['GRACIAS POR JUGAR', ...[0, 1].map(k => `${teamName(k)}: ${playersOf(k).map(px).join(', ')}`),
+    px(CFG.titulo.replace(/\|/g, ' ')), 'INSERT COIN'].join('   ***   ');
+  if (ac) BOARD.redoble();
+  // Redoble ~2.3 s, luego revelar ganador, puntajes, confeti y fuegos
+  seqT.push(setTimeout(() => {
+    f.classList.add('rev');
+    animNum($('#fs0'), 0, a, 1500); animNum($('#fs1'), 0, b, 1500);
+    const cols = finalCols();
+    for (let i = 0; i < 70; i++) {
+      const c = document.createElement('div');
+      c.className = 'conf';
+      c.style.cssText = `left:${Math.random() * 1920}px;background:${cols[i % cols.length]};animation-duration:${2.5 + Math.random() * 3}s;animation-delay:${-Math.random() * 5}s`;
+      f.appendChild(c);
+    }
+    SFX.win();
+    fwT = setInterval(firework, 700);
+    seqT.push(setTimeout(() => { finalStage = true; }, 1800));
+  }, 2300));
 }
 
 function resetGame() {
@@ -663,7 +919,8 @@ const CMD = {
   voice: () => { AUD.voiceOn = !AUD.voiceOn; applyAudio(); },
   vol: a => { if (a.music !== undefined) AUD.musicVol = +a.music; if (a.sfx !== undefined) AUD.sfxVol = +a.sfx; applyAudio(); },
   cam: cycleCam, player: a => { S.player[a.t] = a.i; renderPlayers(); }, nextPlayer: t => nextPlayer(t),
-  newgame: resetGame
+  newgame: resetGame, timer: toggleTimer, stopTimer, intro,
+  sfx: n => { if (BOARD[n]) BOARD[n](); }
 };
 CRG.on(m => {
   if (m.type === 'cmd' && CMD[m.cmd]) { audio(); CMD[m.cmd](m.arg); sync(); }
@@ -686,8 +943,9 @@ function handleKey(e) {
   if (lk === 'm') { muted = !muted; applyAudio(); return; }
   if (lk === 'p') { AUD.musicOn = !AUD.musicOn; applyAudio(); return; }
   if (lk === 'c') return cycleCam();
+  if (lk === 'i') return intro();
 
-  if (screen === 'title') { if (k === 'Enter' || k === ' ') start(); return; }
+  if (screen === 'title') { if ((k === 'Enter' || k === ' ') && !wake) start(); return; }
   if (screen === 'final') { if (k === 'ArrowLeft') prev(); return; }
 
   if (k >= '1' && k <= '6') return reveal(+k - 1);
@@ -697,12 +955,13 @@ function handleKey(e) {
   if (lk === 'b') return setActive(1);
   if (k === ' ') { e.preventDefault(); return awardActive(); }
   if (lk === 'r') return revealRest();
+  if (lk === 't') return toggleTimer();
   if (k === '+' || k === '=') return adjust(answering(), 5);
   if (k === '-') return adjust(answering(), -5);
   if (k === 'ArrowRight') return next();
   if (k === 'ArrowLeft') return prev();
 }
-addEventListener('keydown', e => { audio(); handleKey(e); sync(); });
+addEventListener('keydown', e => { gesture(); handleKey(e); sync(); });
 
 /* ---------- fondo: estrellas + grilla ---------- */
 const cv = $('#bg'), cx = cv.getContext('2d');

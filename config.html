@@ -81,6 +81,12 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
 .plist{display:grid;gap:6px;margin-top:10px}
 .plist button{text-align:left;font-family:'VT323',monospace;font-size:24px;padding:4px 12px}
 .plist button.cur{background:var(--tc);color:var(--ink)}
+#lvTimer{display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:28px;color:var(--soft);background:var(--ink);box-shadow:inset 0 0 0 3px #26307a}
+#lvTimer.on{color:var(--gold);box-shadow:inset 0 0 0 3px var(--gold)}
+#lvTimer.hot{color:var(--red);box-shadow:inset 0 0 0 3px var(--red)}
+#board{margin-top:16px}
+#board .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#board button{font-size:10px;padding:16px 8px}
 #lvEmpty{text-align:center;padding:30px 10px;color:var(--soft);font-size:26px}
 
 /* preguntas */
@@ -111,7 +117,7 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
 .eq .gen{grid-column:1/-1}
 .eq .row2{display:grid;grid-template-columns:1fr 120px;gap:10px}
 
-@media (max-width:1250px){.ctl{grid-template-columns:1fr 1fr}.ctl #live{grid-column:1/-1;order:-1}}
+@media (max-width:1250px){.ctl{grid-template-columns:1fr 1fr}.ctl #mid{grid-column:1/-1;order:-1}}
 @media (max-width:820px){.ctl,.pq,.eq{grid-template-columns:1fr}.ans{grid-template-columns:40px 1fr 70px 90px}}
 </style>
 </head>
@@ -128,7 +134,7 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
   <div class="tabs">
     <button data-tab="control" class="on">CONTROL EN VIVO</button>
     <button data-tab="preg">PREGUNTAS</button>
-    <button data-tab="equipos">EQUIPOS</button>
+    <button data-tab="equipos">EQUIPOS Y AJUSTES</button>
   </div>
 
   <!-- ============ CONTROL ============ -->
@@ -140,8 +146,10 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
         <div class="kv"><span>Pregunta</span><b id="stQ">-</b></div>
         <div class="kv"><span>Multiplicador</span><b id="stMult">-</b></div>
         <div class="kv"><span>Bolsa</span><b id="stPot">-</b></div>
+        <div class="kv"><span>Tiempo</span><b id="stTimer">-</b></div>
         <div class="xs" id="stX"><i>X</i><i>X</i><i>X</i></div>
         <div class="btns"><button data-cmd="title">TITULO</button><button data-cmd="start">EMPEZAR</button><button data-cmd="final">FINAL</button></div>
+        <div class="btns"><button class="gold" data-cmd="intro">PRESENTAR EQUIPOS</button></div>
         <div class="btns"><button data-cmd="prev">◀ ANTERIOR</button><button data-cmd="next">SIGUIENTE ▶</button></div>
         <label>Ir a pregunta</label>
         <select id="gotoSel"></select>
@@ -158,11 +166,15 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
         
       </div>
 
-      <div class="card" id="live">
+      <div id="mid"><div class="card" id="live">
         <div class="qhead"><span id="lvNum">-</span><span id="lvMult"></span></div>
         <div class="qtext" id="lvQ"></div>
         <div id="lvPhase">-</div>
         <div id="lvAns"></div>
+        <div class="actions" style="margin:0 0 14px">
+          <button class="big" data-cmd="timer" id="timerBtn">INICIAR TIEMPO (T)</button>
+          <div id="lvTimer">--</div>
+        </div>
         <div class="actions">
           <button class="big red" data-cmd="strike">✖ ERROR</button>
           <button class="big" data-cmd="undo">DESHACER ERROR</button>
@@ -171,6 +183,21 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
         </div>
       </div>
 
+      <div class="card" id="board">
+        <h3>BOTONERA</h3>
+        <div class="grid">
+          <button data-cmd="sfx" data-arg='"aplausos"'>APLAUSOS</button>
+          <button data-cmd="sfx" data-arg='"redoble"'>REDOBLE</button>
+          <button data-cmd="sfx" data-arg='"suspenso"'>SUSPENSO</button>
+          <button data-cmd="sfx" data-arg='"ooh"'>OOOOH</button>
+          <button data-cmd="sfx" data-arg='"risas"'>RISAS</button>
+          <button data-cmd="sfx" data-arg='"trombon"'>TROMBON TRISTE</button>
+          <button data-cmd="sfx" data-arg='"correcto"'>CAMPANA</button>
+          <button data-cmd="sfx" data-arg='"bocina"'>BOCINA</button>
+          <button data-cmd="sfx" data-arg='"fanfarria"'>FANFARRIA</button>
+        </div>
+      </div>
+      </div>
       <div id="teamsLive"></div>
     </div>
   </section>
@@ -242,6 +269,16 @@ function renderConn() {
   $('#conn').textContent = ok ? 'PANTALLA CONECTADA' : 'PANTALLA DESCONECTADA';
 }
 setInterval(renderConn, 1000);
+
+// Cuenta regresiva en vivo del temporizador del juego
+setInterval(() => {
+  const t = st && st.S.timer, el = $('#lvTimer');
+  const left = t ? Math.max(0, Math.ceil((t.end - Date.now()) / 1000)) : null;
+  el.textContent = t ? left + 's' : cfg.tiempo + 's';
+  el.className = t ? (left <= 5 ? 'hot' : 'on') : '';
+  $('#stTimer').textContent = t ? left + 's' : '-';
+  $('#timerBtn').textContent = t ? 'PARAR TIEMPO (T)' : 'INICIAR TIEMPO (T)';
+}, 200);
 CRG.send({type: 'hello'});
 
 $('#openGame').addEventListener('click', () => window.open('index.html', 'crg-juego'));
@@ -272,7 +309,7 @@ function renderLive(force) {
   const S = st.S, q = cfg.preguntas[S.q], A = CRG.answers(q), m = n ? CRG.multFor(cfg, S.q) : 1;
   const tn = t => esc(px(cfg.equipos[t].nombre));
 
-  $('#stScreen').textContent = {title: 'TITULO', game: 'EN JUEGO', final: 'FINAL'}[st.screen] || '-';
+  $('#stScreen').textContent = {title: 'TITULO', game: 'EN JUEGO', final: 'FINAL', intro: 'PRESENTACION'}[st.screen] || '-';
   $('#stQ').textContent = n ? `${S.q + 1} / ${n}` : '-';
   $('#stMult').textContent = 'x' + m;
   $('#stPot').textContent = pad(S.pot);
@@ -332,6 +369,7 @@ addEventListener('keydown', e => {
   else if (lk === 'b') { c = 'active'; a = 1; }
   else if (k === ' ') c = 'award';
   else if (lk === 'r') c = 'rest';
+  else if (lk === 't') c = 'timer';
   else if (k === 'ArrowRight') c = 'next';
   else if (k === 'ArrowLeft') c = 'prev';
   else if (k === 'Enter' && st && st.screen === 'title') c = 'start';
@@ -460,6 +498,11 @@ function renderTeamsForm() {
       <div class="row2" style="grid-template-columns:1fr 1fr">
         <div><label>Título (usa | para partir en 2 líneas)</label><input data-f="titulo" maxlength="40" value="${esc(cfg.titulo)}"></div>
         <div><label>Subtítulo</label><input data-f="subtitulo" maxlength="30" value="${esc(cfg.subtitulo)}"></div>
+      </div>
+      <h3 style="margin-top:22px">TEMPORIZADOR</h3>
+      <div class="row2" style="grid-template-columns:1fr 1fr">
+        <div><label>Segundos por respuesta (5 a 120)</label><input type="number" data-f="tiempo" min="5" max="120" value="${cfg.tiempo}"></div>
+        <div><label><input type="checkbox" data-f="autoError" ${cfg.autoError ? 'checked' : ''} style="width:auto;margin-right:10px">Error automático si se acaba el tiempo</label></div>
       </div></div>
     ${cfg.equipos.map((e, t) => `
     <div class="card" style="box-shadow:inset 0 0 0 4px ${e.color},inset 0 0 0 7px var(--ink)" id="eqc${t}">
@@ -473,7 +516,9 @@ function renderTeamsForm() {
 }
 $('#eqForm').addEventListener('input', e => {
   const x = e.target;
-  if (x.dataset.f) cfg[x.dataset.f] = x.value;
+  if (x.dataset.f === 'tiempo') cfg.tiempo = Math.min(120, Math.max(5, parseInt(x.value, 10) || 15));
+  else if (x.dataset.f === 'autoError') cfg.autoError = x.checked;
+  else if (x.dataset.f) cfg[x.dataset.f] = x.value;
   else if (x.dataset.p !== undefined) cfg.equipos[+x.dataset.t].jugadores[+x.dataset.p] = x.value;
   else if (x.dataset.k) {
     cfg.equipos[+x.dataset.t][x.dataset.k] = x.value;
