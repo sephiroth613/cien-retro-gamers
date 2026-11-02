@@ -51,6 +51,7 @@ button.on{background:var(--gold);color:var(--ink)}
 input,textarea,select{width:100%;font-family:'VT323',monospace;font-size:26px;color:var(--white);background:var(--ink);border:3px solid var(--line);padding:4px 10px;outline:none}
 input:focus,textarea:focus,select:focus{border-color:var(--gold)}
 input[type=color]{height:44px;padding:2px;cursor:pointer}
+input[type=range]{padding:0;border:0;height:30px;background:none;accent-color:var(--gold);cursor:pointer}
 label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
 .note{font-size:20px;color:var(--soft);margin-top:12px}
 
@@ -144,9 +145,16 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
         <div class="btns"><button data-cmd="prev">◀ ANTERIOR</button><button data-cmd="next">SIGUIENTE ▶</button></div>
         <label>Ir a pregunta</label>
         <select id="gotoSel"></select>
-        <div class="btns"><button data-cmd="mute" id="muteBtn">SONIDO: SI</button><button data-cmd="cam">COLOR CAM</button></div>
-        <div class="btns"><button class="danger" id="newGame">NUEVO JUEGO</button></div>
+        <div class="btns"><button data-cmd="cam">COLOR CAM</button></div>
+        <h3 style="margin-top:22px">AUDIO</h3>
+        <div class="btns"><button data-cmd="music" id="musicBtn">MUSICA: SI</button><button data-cmd="mute" id="muteBtn">SONIDO: SI</button></div>
+        <label>Volumen música: <b id="mvLbl">-</b></label>
+        <input type="range" id="mVol" min="0" max="100" step="1">
+        <label>Volumen efectos: <b id="svLbl">-</b></label>
+        <input type="range" id="sVol" min="0" max="100" step="1">
         <p class="note">Teclado: 1-6 destapar · X error · Borrar deshacer · A/B turno · Espacio bolsa · R restantes · ← →</p>
+        <div class="btns"><button class="danger" id="newGame">NUEVO JUEGO</button></div>
+        
       </div>
 
       <div class="card" id="live">
@@ -223,7 +231,7 @@ document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click',
 CRG.on(m => {
   if (m.type !== 'state') return;
   st = m; lastSt = Date.now();
-  const key = JSON.stringify([m.S, m.screen, m.muted]);
+  const key = JSON.stringify([m.S, m.screen, m.muted, m.musicOn, m.musicVol, m.sfxVol]);
   if (key !== lastKey) { lastKey = key; renderLive(); }
   renderConn();
 });
@@ -238,6 +246,8 @@ CRG.send({type: 'hello'});
 $('#openGame').addEventListener('click', () => window.open('index.html', 'crg-juego'));
 $('#newGame').addEventListener('click', () => { if (confirm('¿Nuevo juego? Se borran los puntajes.')) send('newgame'); });
 $('#gotoSel').addEventListener('change', e => send('goto', +e.target.value));
+$('#mVol').addEventListener('input', e => { $('#mvLbl').textContent = e.target.value + '%'; send('vol', {music: e.target.value / 100}); });
+$('#sVol').addEventListener('input', e => { $('#svLbl').textContent = e.target.value + '%'; send('vol', {sfx: e.target.value / 100}); });
 
 // Botones con data-cmd (y data-arg en JSON)
 document.addEventListener('click', e => {
@@ -268,6 +278,11 @@ function renderLive(force) {
   document.querySelectorAll('#stX i').forEach((x, i) => x.classList.toggle('on', i < S.strikes));
   sel2.value = S.q;
   $('#muteBtn').textContent = st.muted ? 'SONIDO: NO' : 'SONIDO: SI';
+  $('#musicBtn').textContent = st.musicOn ? 'MUSICA: SI' : 'MUSICA: NO';
+  [['#mVol', '#mvLbl', st.musicVol], ['#sVol', '#svLbl', st.sfxVol]].forEach(([r, l, v]) => {
+    if (v === undefined || document.activeElement === $(r)) return;
+    $(r).value = Math.round(v * 100); $(l).textContent = Math.round(v * 100) + '%';
+  });
 
   $('#lvNum').textContent = n ? `PREGUNTA ${S.q + 1} DE ${n}` : 'SIN PREGUNTAS';
   $('#lvMult').textContent = m > 1 ? `PUNTOS x${m}` : '';
