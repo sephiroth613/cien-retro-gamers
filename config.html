@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel Retro Gamers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#ffd23f; --gold2:#ff9f1c; --ink:#05061a; --card:#0d1450; --line:#5b6bd6;
+  --blue1:#2a3fb8; --blue2:#1f2f94; --red:#ff2a2a; --green:#2fbf5b;
+  --white:#f7f4ff; --soft:#b9c2ff;
+  --notch:polygon(0 6px,6px 6px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 6px),0 calc(100% - 6px));
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(180deg,#07082a,#140a3c 60%,#2a0b4a);background-attachment:fixed;color:var(--white);font-family:'VT323',monospace;font-size:22px}
+.px{font-family:'Press Start 2P',monospace}
+h3{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--gold);margin-bottom:16px;text-shadow:3px 3px 0 #000}
+h3 small{color:var(--soft);font-size:10px}
+.wrap{max-width:1600px;margin:0 auto;padding:16px}
+
+/* top */
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.logo{font-family:'Press Start 2P',monospace;font-size:16px;line-height:1.4;background:linear-gradient(180deg,#fff7b0 0 40%,var(--gold) 40% 70%,var(--gold2) 70%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(3px 3px 0 #b3001b)}
+.logo small{display:block;font-size:10px}
+.spacer{flex:1}
+#conn{font-family:'Press Start 2P',monospace;font-size:10px;padding:10px 12px;background:var(--ink);box-shadow:inset 0 0 0 3px var(--red);color:var(--red)}
+#conn.ok{box-shadow:inset 0 0 0 3px var(--green);color:var(--green)}
+#saved{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--green);opacity:0;transition:opacity .3s}
+#saved.show{opacity:1}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tabs button{flex:1;min-width:180px}
+.tabs button.on{background:var(--gold);color:var(--ink)}
+.tab{display:none}.tab.show{display:block}
+
+/* cards & controls */
+.card{clip-path:var(--notch);background:var(--card);box-shadow:inset 0 0 0 4px var(--gold),inset 0 0 0 7px var(--ink);padding:22px}
+button,.btn{font-family:'Press Start 2P',monospace;font-size:11px;line-height:1.4;color:var(--white);background:var(--blue1);border:0;padding:12px 12px;cursor:pointer;clip-path:var(--notch);box-shadow:inset 0 0 0 3px var(--line),inset 0 -6px 0 3px var(--blue2);text-align:center;display:inline-block}
+button:hover,.btn:hover{filter:brightness(1.2)}
+button:active,.btn:active{transform:translate(2px,2px)}
+button:disabled{opacity:.35;cursor:default;filter:none;transform:none}
+button.red{background:#b3001b;box-shadow:inset 0 0 0 3px var(--red),inset 0 -6px 0 3px #7a0012}
+button.gold{background:var(--gold2);color:var(--ink);box-shadow:inset 0 0 0 3px var(--gold),inset 0 -6px 0 3px #c46f00}
+button.danger{background:#3a0010;box-shadow:inset 0 0 0 3px var(--red)}
+button.on{background:var(--gold);color:var(--ink)}
+.big{font-size:14px;padding:20px 14px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btns>*{flex:1;display:flex;align-items:center;justify-content:center}
+input,textarea,select{width:100%;font-family:'VT323',monospace;font-size:26px;color:var(--white);background:var(--ink);border:3px solid var(--line);padding:4px 10px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+input[type=color]{height:44px;padding:2px;cursor:pointer}
+label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
+.note{font-size:20px;color:var(--soft);margin-top:12px}
+
+/* control en vivo */
+.ctl{display:grid;grid-template-columns:300px 1fr 360px;gap:16px;align-items:start}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:2px dashed #26307a}
+.kv span{color:var(--soft)}
+.kv b{font-family:'Press Start 2P',monospace;font-size:11px;text-align:right}
+.xs{display:flex;gap:10px;justify-content:center;margin:16px 0 6px}
+.xs i{width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-style:normal;font-family:'Press Start 2P',monospace;font-size:22px;color:#26307a;background:var(--ink);box-shadow:inset 0 0 0 4px #26307a}
+.xs i.on{color:var(--red);box-shadow:inset 0 0 0 4px var(--red);background:#2a0008}
+.qhead{display:flex;justify-content:space-between;font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gold);margin-bottom:10px}
+.qtext{font-size:34px;line-height:1.1;margin-bottom:16px;min-height:40px}
+#lvPhase{font-family:'Press Start 2P',monospace;font-size:12px;padding:12px;margin-bottom:14px;text-align:center;background:var(--ink)}
+#lvPhase.steal{color:var(--red);box-shadow:inset 0 0 0 3px var(--red);animation:blink .6s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+.ans{display:grid;grid-template-columns:56px 1fr 90px 110px;align-items:center;width:100%;margin-bottom:8px;padding:12px 14px;text-align:left;font-size:12px}
+.ans .t{font-family:'VT323',monospace;font-size:30px;text-transform:uppercase;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ans .c,.ans .p{text-align:right}
+.ans .p{color:var(--gold)}
+.ans.open{background:#1d6b3a;box-shadow:inset 0 0 0 3px var(--green),inset 0 -6px 0 3px #145029}
+.ans.unearned{background:#3c4068;box-shadow:inset 0 0 0 3px #6a6f9a}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tcard{margin-bottom:16px}
+.tcard .tn{font-family:'Press Start 2P',monospace;font-size:14px;margin-bottom:10px;text-shadow:3px 3px 0 #000}
+.tcard .ts{font-family:'Press Start 2P',monospace;font-size:40px;color:var(--gold);text-shadow:4px 4px 0 #000;margin:6px 0 4px}
+.plist{display:grid;gap:6px;margin-top:10px}
+.plist button{text-align:left;font-family:'VT323',monospace;font-size:24px;padding:4px 12px}
+.plist button.cur{background:var(--tc);color:var(--ink)}
+#lvEmpty{text-align:center;padding:30px 10px;color:var(--soft);font-size:26px}
+
+/* preguntas */
+.pq{display:grid;grid-template-columns:420px 1fr;gap:16px;align-items:start}
+#pqList{max-height:60vh;overflow:auto;display:grid;gap:6px;padding-right:4px}
+.pqi{display:grid;grid-template-columns:40px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;background:var(--ink);cursor:pointer;box-shadow:inset 0 0 0 3px #26307a}
+.pqi:hover{box-shadow:inset 0 0 0 3px var(--line)}
+.pqi.sel{box-shadow:inset 0 0 0 3px var(--gold)}
+.pqi .n{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gold)}
+.pqi .t{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pqi .t.empty{color:#6a6f9a}
+.pqi .m{font-family:'Press Start 2P',monospace;font-size:9px;padding:4px 6px;background:#26307a}
+.pqi .m.x2{background:var(--gold2);color:var(--ink)}.pqi .m.x3{background:var(--red)}
+.pqi .s{font-size:18px;color:var(--soft)}
+.pqi .s.bad{color:var(--red)}
+.edhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.edhead h3{margin:0}
+.edhead .btns{margin:0;flex:0 0 auto}
+.arow{display:grid;grid-template-columns:40px 1fr 120px 110px;gap:10px;align-items:center;margin-top:8px}
+.arow.head{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--soft);margin-top:18px}
+.arow .n{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--gold);text-align:center}
+.arow .ap{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--gold);text-align:right}
+#edSum{font-family:'Press Start 2P',monospace;font-size:11px;margin-top:16px;padding:12px;background:var(--ink)}
+#edSum.bad{color:var(--red)}
+
+/* equipos */
+.eq{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.eq .gen{grid-column:1/-1}
+.eq .row2{display:grid;grid-template-columns:1fr 120px;gap:10px}
+
+@media (max-width:1250px){.ctl{grid-template-columns:1fr 1fr}.ctl #live{grid-column:1/-1;order:-1}}
+@media (max-width:820px){.ctl,.pq,.eq{grid-template-columns:1fr}.ans{grid-template-columns:40px 1fr 70px 90px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">CIEN RETRO GAMERS DIJERON<small>PANEL DEL PRESENTADOR</small></div>
+    <div class="spacer"></div>
+    <span id="saved">GUARDADO ✓</span>
+    <span id="conn">PANTALLA DESCONECTADA</span>
+    <button class="gold" id="openGame">ABRIR PANTALLA DEL JUEGO</button>
+  </div>
+
+  <div class="tabs">
+    <button data-tab="control" class="on">CONTROL EN VIVO</button>
+    <button data-tab="preg">PREGUNTAS</button>
+    <button data-tab="equipos">EQUIPOS</button>
+  </div>
+
+  <!-- ============ CONTROL ============ -->
+  <section class="tab show" id="tab-control">
+    <div class="ctl">
+      <div class="card">
+        <h3>ESTADO</h3>
+        <div class="kv"><span>Pantalla</span><b id="stScreen">-</b></div>
+        <div class="kv"><span>Pregunta</span><b id="stQ">-</b></div>
+        <div class="kv"><span>Multiplicador</span><b id="stMult">-</b></div>
+        <div class="kv"><span>Bolsa</span><b id="stPot">-</b></div>
+        <div class="xs" id="stX"><i>X</i><i>X</i><i>X</i></div>
+        <div class="btns"><button data-cmd="title">TITULO</button><button data-cmd="start">EMPEZAR</button><button data-cmd="final">FINAL</button></div>
+        <div class="btns"><button data-cmd="prev">◀ ANTERIOR</button><button data-cmd="next">SIGUIENTE ▶</button></div>
+        <label>Ir a pregunta</label>
+        <select id="gotoSel"></select>
+        <div class="btns"><button data-cmd="mute" id="muteBtn">SONIDO: SI</button><button data-cmd="cam">COLOR CAM</button></div>
+        <div class="btns"><button class="danger" id="newGame">NUEVO JUEGO</button></div>
+        <p class="note">Teclado: 1-6 destapar · X error · Borrar deshacer · A/B turno · Espacio bolsa · R restantes · ← →</p>
+      </div>
+
+      <div class="card" id="live">
+        <div class="qhead"><span id="lvNum">-</span><span id="lvMult"></span></div>
+        <div class="qtext" id="lvQ"></div>
+        <div id="lvPhase">-</div>
+        <div id="lvAns"></div>
+        <div class="actions">
+          <button class="big red" data-cmd="strike">✖ ERROR</button>
+          <button class="big" data-cmd="undo">DESHACER ERROR</button>
+          <button class="big gold" data-cmd="award">DAR BOLSA AL TURNO</button>
+          <button class="big" data-cmd="rest">MOSTRAR RESTANTES</button>
+        </div>
+      </div>
+
+      <div id="teamsLive"></div>
+    </div>
+  </section>
+
+  <!-- ============ PREGUNTAS ============ -->
+  <section class="tab" id="tab-preg">
+    <div class="pq">
+      <div class="card">
+        <h3>PREGUNTAS <small id="pqCount"></small></h3>
+        <div id="pqList"></div>
+        <div class="btns"><button class="gold" id="pqAdd">+ NUEVA PREGUNTA</button></div>
+        <div class="btns"><button id="pqExport">EXPORTAR</button><label class="btn">IMPORTAR<input type="file" id="pqImport" accept=".json,application/json" hidden></label></div>
+        <div class="btns"><button id="pqExamples">CARGAR EJEMPLOS</button><button class="danger" id="pqClear">BORRAR TODAS</button></div>
+        <p class="note">Todo se guarda solo en este navegador. Exporta un respaldo antes del evento.</p>
+      </div>
+      <div class="card" id="pqEdit"></div>
+    </div>
+  </section>
+
+  <!-- ============ EQUIPOS ============ -->
+  <section class="tab" id="tab-equipos">
+    <div class="eq" id="eqForm"></div>
+  </section>
+</div>
+
+<script src="preguntas.js"></script>
+<script src="comun.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const px = s => String(s).replace(/[ÁÉÍÓÚÜ]/g, c => 'AEIOUU'['ÁÉÍÓÚÜ'.indexOf(c)]);
+const pad = n => String(Math.max(0, n)).padStart(3, '0');
+
+let cfg = CRG.load(), st = null, lastSt = 0, lastKey = '', sel = 0;
+const send = (cmd, arg) => CRG.send({type: 'cmd', cmd, arg});
+const playersOf = t => cfg.equipos[t].jugadores.map(p => p.trim()).filter(Boolean);
+const emptyQ = () => ({pregunta: '', mult: 0, respuestas: [0, 1, 2, 3, 4, 5].map(() => ['', 0])});
+
+/* ---------- guardado ---------- */
+let saveT, savedT;
+function persist(now) {
+  clearTimeout(saveT);
+  const go = () => {
+    CRG.save(cfg);
+    const s = $('#saved'); s.classList.add('show');
+    clearTimeout(savedT); savedT = setTimeout(() => s.classList.remove('show'), 1200);
+    renderLive(true);
+  };
+  now ? go() : (saveT = setTimeout(go, 350));
+}
+
+/* ---------- pestañas ---------- */
+document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-tab]').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('show', t.id === 'tab-' + b.dataset.tab));
+}));
+
+/* ---------- comunicación con el juego ---------- */
+CRG.on(m => {
+  if (m.type !== 'state') return;
+  st = m; lastSt = Date.now();
+  const key = JSON.stringify([m.S, m.screen, m.muted]);
+  if (key !== lastKey) { lastKey = key; renderLive(); }
+  renderConn();
+});
+function renderConn() {
+  const ok = Date.now() - lastSt < 3000;
+  $('#conn').className = ok ? 'ok' : '';
+  $('#conn').textContent = ok ? 'PANTALLA CONECTADA' : 'PANTALLA DESCONECTADA';
+}
+setInterval(renderConn, 1000);
+CRG.send({type: 'hello'});
+
+$('#openGame').addEventListener('click', () => window.open('index.html', 'crg-juego'));
+$('#newGame').addEventListener('click', () => { if (confirm('¿Nuevo juego? Se borran los puntajes.')) send('newgame'); });
+$('#gotoSel').addEventListener('change', e => send('goto', +e.target.value));
+
+// Botones con data-cmd (y data-arg en JSON)
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-cmd]');
+  if (!b || b.disabled) return;
+  send(b.dataset.cmd, b.dataset.arg !== undefined ? JSON.parse(b.dataset.arg) : undefined);
+});
+
+/* ---------- control en vivo ---------- */
+function renderLive(force) {
+  const n = cfg.preguntas.length;
+  const sel2 = $('#gotoSel');
+  if (force || sel2.options.length !== n) {
+    sel2.innerHTML = cfg.preguntas.map((p, i) => `<option value="${i}">${i + 1}. ${esc(p.pregunta || '(sin texto)').slice(0, 60)}</option>`).join('');
+  }
+  if (!st) {
+    $('#lvAns').innerHTML = '<div id="lvEmpty">Abre la pantalla del juego<br>(botón amarillo arriba)</div>';
+    $('#teamsLive').innerHTML = '';
+    return;
+  }
+  const S = st.S, q = cfg.preguntas[S.q], A = CRG.answers(q), m = n ? CRG.multFor(cfg, S.q) : 1;
+  const tn = t => esc(px(cfg.equipos[t].nombre));
+
+  $('#stScreen').textContent = {title: 'TITULO', game: 'EN JUEGO', final: 'FINAL'}[st.screen] || '-';
+  $('#stQ').textContent = n ? `${S.q + 1} / ${n}` : '-';
+  $('#stMult').textContent = 'x' + m;
+  $('#stPot').textContent = pad(S.pot);
+  document.querySelectorAll('#stX i').forEach((x, i) => x.classList.toggle('on', i < S.strikes));
+  sel2.value = S.q;
+  $('#muteBtn').textContent = st.muted ? 'SONIDO: NO' : 'SONIDO: SI';
+
+  $('#lvNum').textContent = n ? `PREGUNTA ${S.q + 1} DE ${n}` : 'SIN PREGUNTAS';
+  $('#lvMult').textContent = m > 1 ? `PUNTOS x${m}` : '';
+  $('#lvQ').textContent = q ? q.pregunta : 'Agrega preguntas en la pestaña PREGUNTAS';
+  const ph = $('#lvPhase');
+  ph.className = S.phase === 'steal' ? 'steal' : '';
+  ph.textContent = st.screen !== 'game' ? 'EL JUEGO NO HA EMPEZADO (BOTON EMPEZAR)'
+    : S.phase === 'play' ? `RESPONDE: ${px(cfg.equipos[S.active].nombre)}`
+    : S.phase === 'steal' ? `ROBO: ${px(cfg.equipos[S.steal].nombre)} (UNA RESPUESTA)`
+    : 'RONDA CERRADA';
+
+  let h = '';
+  for (let i = 0; i < 6; i++) {
+    const a = A[i];
+    if (!a) { h += `<button class="ans" disabled><span>${i + 1}</span><span class="t">—</span><span></span><span></span></button>`; continue; }
+    const cls = S.unearned[i] ? 'unearned' : S.revealed[i] ? 'open' : '';
+    h += `<button class="ans ${cls}" data-cmd="reveal" data-arg="${i}"><span>${i + 1}</span><span class="t">${esc(a[0])}</span>`
+      + `<span class="c">${a[1]}</span><span class="p">${a[1] * m} PTS</span></button>`;
+  }
+  $('#lvAns').innerHTML = h;
+
+  $('#teamsLive').innerHTML = [0, 1].map(t => {
+    const turn = S.phase === 'steal' ? S.steal === t : S.active === t;
+    const ps = playersOf(t);
+    return `<div class="card tcard" style="--tc:${cfg.equipos[t].color};box-shadow:inset 0 0 0 4px ${cfg.equipos[t].color},inset 0 0 0 7px var(--ink)">
+      <div class="tn" style="color:${cfg.equipos[t].color}">${tn(t)}</div>
+      <div class="ts">${pad(S.scores[t])}</div>
+      <div class="btns"><button class="${turn ? 'on' : ''}" data-cmd="active" data-arg="${t}">${turn ? 'EN TURNO' : 'DAR TURNO (' + 'AB'[t] + ')'}</button></div>
+      <div class="btns">${[-10, -5, 5, 10].map(d => `<button data-cmd="adjust" data-arg='{"t":${t},"d":${d}}'>${d > 0 ? '+' : ''}${d}</button>`).join('')}</div>
+      <div class="plist">${ps.map((p, i) => `<button class="${i === S.player[t] ? 'cur' : ''}" data-cmd="player" data-arg='{"t":${t},"i":${i}}'>${i === S.player[t] ? '► ' : ''}${esc(p)}</button>`).join('')}</div>
+      ${ps.length ? `<div class="btns"><button data-cmd="nextPlayer" data-arg="${t}">SIGUIENTE JUGADOR</button></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Atajos de teclado en el panel (solo en CONTROL y fuera de campos de texto)
+addEventListener('keydown', e => {
+  if (!$('#tab-control').classList.contains('show') || e.target.closest('input,textarea,select')) return;
+  const k = e.key, lk = k.toLowerCase(), S = st && st.S;
+  let c = null, a;
+  if (k >= '1' && k <= '6') { c = 'reveal'; a = +k - 1; }
+  else if (lk === 'x') c = 'strike';
+  else if (k === 'Backspace') c = 'undo';
+  else if (lk === 'a') { c = 'active'; a = 0; }
+  else if (lk === 'b') { c = 'active'; a = 1; }
+  else if (k === ' ') c = 'award';
+  else if (lk === 'r') c = 'rest';
+  else if (k === 'ArrowRight') c = 'next';
+  else if (k === 'ArrowLeft') c = 'prev';
+  else if (k === 'Enter' && st && st.screen === 'title') c = 'start';
+  else if ((k === '+' || k === '=' || k === '-') && S) { c = 'adjust'; a = {t: S.phase === 'steal' ? S.steal : S.active, d: k === '-' ? -5 : 5}; }
+  if (!c) return;
+  e.preventDefault(); send(c, a);
+});
+
+/* ---------- preguntas ---------- */
+function renderList() {
+  const P = cfg.preguntas, n = P.length;
+  $('#pqCount').textContent = `(${n})`;
+  $('#pqList').innerHTML = P.map((p, i) => {
+    const m = CRG.multFor(cfg, i), sum = p.respuestas.reduce((s, a) => s + (a[0].trim() ? a[1] : 0), 0);
+    return `<div class="pqi ${i === sel ? 'sel' : ''}" data-i="${i}"><span class="n">${i + 1}</span>`
+      + `<span class="t ${p.pregunta ? '' : 'empty'}">${esc(p.pregunta || '(sin texto)')}</span>`
+      + `<span class="m ${m > 1 ? 'x' + m : ''}">x${m}${p.mult ? '' : ' A'}</span><span class="s ${sum > 100 ? 'bad' : ''}">${sum}</span></div>`;
+  }).join('') || '<p class="note">No hay preguntas todavía.</p>';
+}
+$('#pqList').addEventListener('click', e => {
+  const it = e.target.closest('.pqi');
+  if (it) { sel = +it.dataset.i; renderList(); renderEditor(); }
+});
+
+function renderEditor() {
+  const ed = $('#pqEdit'), P = cfg.preguntas;
+  if (!P.length) { ed.innerHTML = '<h3>EDITOR</h3><p class="note">Crea una pregunta con "+ NUEVA PREGUNTA".</p>'; return; }
+  sel = Math.min(sel, P.length - 1);
+  const p = P[sel], auto = CRG.autoMult(P.length, sel);
+  ed.innerHTML = `
+    <div class="edhead"><h3>PREGUNTA ${sel + 1}</h3>
+      <div class="btns"><button data-ed="up" ${sel ? '' : 'disabled'}>▲</button><button data-ed="down" ${sel < P.length - 1 ? '' : 'disabled'}>▼</button>
+      <button data-ed="dup">DUPLICAR</button><button class="danger" data-ed="del">ELIMINAR</button></div></div>
+    <label>Texto de la pregunta</label>
+    <textarea id="edQ" rows="2" maxlength="140">${esc(p.pregunta)}</textarea>
+    <label>Multiplicador de puntos</label>
+    <select id="edM">
+      <option value="0">AUTOMÁTICO (aquí x${auto})</option>
+      <option value="1">x1 NORMAL</option><option value="2">x2 DOBLE</option><option value="3">x3 TRIPLE</option>
+    </select>
+    <div class="arow head"><span>#</span><span>RESPUESTA</span><span>GAMERS</span><span style="text-align:right">PUNTOS</span></div>
+    ${p.respuestas.map((a, i) => `<div class="arow"><span class="n">${i + 1}</span>
+      <input class="at" data-i="${i}" maxlength="40" value="${esc(a[0])}" placeholder="(vacía)">
+      <input class="an" data-i="${i}" type="number" min="0" max="100" value="${a[1] || ''}" placeholder="0">
+      <span class="ap" id="ap${i}"></span></div>`).join('')}
+    <div id="edSum"></div>
+    <p class="note">Puntos = gamers × multiplicador. En el juego las respuestas salen ordenadas de mayor a menor automáticamente.</p>`;
+  $('#edM').value = p.mult;
+  updateDerived();
+}
+function updateDerived() {
+  const p = cfg.preguntas[sel]; if (!p) return;
+  const m = CRG.multFor(cfg, sel);
+  let sum = 0;
+  p.respuestas.forEach((a, i) => {
+    const has = a[0].trim();
+    if (has) sum += a[1];
+    $('#ap' + i).textContent = has ? a[1] * m : '';
+  });
+  const s = $('#edSum');
+  s.className = sum > 100 ? 'bad' : '';
+  s.textContent = `TOTAL: ${sum}/100 GAMERS` + (sum > 100 ? ' — ¡PASA DE 100!' : sum < 100 ? ` (FALTAN ${100 - sum})` : ' ✓');
+  renderList();
+}
+$('#pqEdit').addEventListener('input', e => {
+  const p = cfg.preguntas[sel], t = e.target;
+  if (!p) return;
+  if (t.id === 'edQ') p.pregunta = t.value;
+  else if (t.id === 'edM') { p.mult = +t.value; }
+  else if (t.classList.contains('at')) p.respuestas[+t.dataset.i][0] = t.value;
+  else if (t.classList.contains('an')) p.respuestas[+t.dataset.i][1] = Math.max(0, parseInt(t.value, 10) || 0);
+  else return;
+  updateDerived(); persist();
+});
+$('#pqEdit').addEventListener('click', e => {
+  const b = e.target.closest('[data-ed]'); if (!b) return;
+  const P = cfg.preguntas, a = b.dataset.ed;
+  if (a === 'up' && sel > 0) { [P[sel - 1], P[sel]] = [P[sel], P[sel - 1]]; sel--; }
+  else if (a === 'down' && sel < P.length - 1) { [P[sel + 1], P[sel]] = [P[sel], P[sel + 1]]; sel++; }
+  else if (a === 'dup') { P.splice(sel + 1, 0, JSON.parse(JSON.stringify(P[sel]))); sel++; }
+  else if (a === 'del') { if (!confirm(`¿Eliminar la pregunta ${sel + 1}?`)) return; P.splice(sel, 1); sel = Math.max(0, sel - 1); }
+  else return;
+  renderList(); renderEditor(); persist(true);
+});
+$('#pqAdd').addEventListener('click', () => {
+  cfg.preguntas.push(emptyQ()); sel = cfg.preguntas.length - 1;
+  renderList(); renderEditor(); persist(true);
+  $('#edQ').focus();
+});
+$('#pqExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(cfg, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'cien-retro-gamers.json'; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$('#pqImport').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!confirm('¿Reemplazar la configuración actual con este archivo?')) return;
+      if (Array.isArray(d)) cfg.preguntas = CRG.normalize({preguntas: d}).preguntas;
+      else if (d.equipos) cfg = CRG.normalize(d);
+      else cfg.preguntas = CRG.normalize({preguntas: d.preguntas || []}).preguntas;
+      sel = 0; renderAllForms(); persist(true);
+    } catch (x) { alert('Archivo inválido: ' + x.message); }
+  };
+  r.readAsText(f); e.target.value = '';
+});
+$('#pqExamples').addEventListener('click', () => {
+  if (!confirm('¿Reemplazar las preguntas por las de ejemplo?')) return;
+  cfg.preguntas = CRG.normalize(CRG.defaults()).preguntas; sel = 0;
+  renderList(); renderEditor(); persist(true);
+});
+$('#pqClear').addEventListener('click', () => {
+  if (!confirm('¿Borrar TODAS las preguntas? Exporta un respaldo primero si las necesitas.')) return;
+  cfg.preguntas = []; sel = 0;
+  renderList(); renderEditor(); persist(true);
+});
+
+/* ---------- equipos ---------- */
+function renderTeamsForm() {
+  $('#eqForm').innerHTML = `
+    <div class="card gen"><h3>GENERAL</h3>
+      <div class="row2" style="grid-template-columns:1fr 1fr">
+        <div><label>Título (usa | para partir en 2 líneas)</label><input data-f="titulo" maxlength="40" value="${esc(cfg.titulo)}"></div>
+        <div><label>Subtítulo</label><input data-f="subtitulo" maxlength="30" value="${esc(cfg.subtitulo)}"></div>
+      </div></div>
+    ${cfg.equipos.map((e, t) => `
+    <div class="card" style="box-shadow:inset 0 0 0 4px ${e.color},inset 0 0 0 7px var(--ink)" id="eqc${t}">
+      <h3>EQUIPO ${t + 1}</h3>
+      <div class="row2">
+        <div><label>Nombre del equipo</label><input data-t="${t}" data-k="nombre" maxlength="18" value="${esc(e.nombre)}"></div>
+        <div><label>Color</label><input type="color" data-t="${t}" data-k="color" value="${e.color}"></div>
+      </div>
+      ${e.jugadores.map((j, i) => `<label>Jugador ${i + 1}</label><input data-t="${t}" data-p="${i}" maxlength="18" value="${esc(j)}" placeholder="Nombre">`).join('')}
+    </div>`).join('')}`;
+}
+$('#eqForm').addEventListener('input', e => {
+  const x = e.target;
+  if (x.dataset.f) cfg[x.dataset.f] = x.value;
+  else if (x.dataset.p !== undefined) cfg.equipos[+x.dataset.t].jugadores[+x.dataset.p] = x.value;
+  else if (x.dataset.k) {
+    cfg.equipos[+x.dataset.t][x.dataset.k] = x.value;
+    if (x.dataset.k === 'color') $('#eqc' + x.dataset.t).style.boxShadow = `inset 0 0 0 4px ${x.value},inset 0 0 0 7px var(--ink)`;
+  } else return;
+  persist();
+});
+
+function renderAllForms() { renderList(); renderEditor(); renderTeamsForm(); renderLive(true); }
+renderAllForms();
+</script>
+</body>
+</html>

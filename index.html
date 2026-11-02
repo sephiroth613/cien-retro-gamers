@@ -38,7 +38,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .team.steal .tag{background:var(--red);color:var(--white);animation:blink .4s steps(2) infinite}
 .team .score{grid-row:1/3;grid-column:2;align-self:center;font-size:68px;color:var(--gold);text-shadow:5px 5px 0 #000;background:var(--ink);padding:22px 18px;clip-path:var(--notch)}
 .team .players{font-size:12px;line-height:2.1;color:var(--soft);display:grid;grid-template-columns:1fr 1fr;column-gap:14px}
-.team .players div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team .players div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+.team .players div.cur{background:var(--tc);color:var(--ink)}
 #center{display:flex;flex-direction:column;align-items:center;justify-content:space-between}
 .logo{text-align:center;line-height:1.2;background:linear-gradient(180deg,#fff7b0 0 34%,var(--gold) 34% 67%,var(--gold2) 67%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(4px 4px 0 #b3001b) drop-shadow(3px 3px 0 #000)}
 #center .logo{font-size:26px}
@@ -83,7 +84,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .slot.empty{cursor:default}
 .slot.empty .front{background:#0a0f3c;box-shadow:inset 0 0 0 6px #2a3270,inset 0 0 0 10px var(--ink)}
 .back{transform:rotateX(180deg);background:linear-gradient(var(--rev1) 0 12%,#5f7bff 12% 20%,var(--rev1) 20% 55%,var(--rev2) 55%)}
-.back .ans{flex:1;min-width:0;padding:0 26px 0 34px;font-size:34px;white-space:nowrap;overflow:hidden;text-transform:uppercase;text-shadow:4px 4px 0 #000}
+.back .ans{flex:1;min-width:0;padding:0 26px 0 34px;font-size:34px;white-space:nowrap;overflow:hidden;text-shadow:4px 4px 0 #000}
 .back .cnt{width:160px;align-self:stretch;margin:10px 10px 10px 0;display:flex;align-items:center;justify-content:center;font-size:46px;color:var(--gold);text-shadow:4px 4px 0 #000;background:var(--ink);box-shadow:inset 6px 0 0 var(--gold)}
 .slot.unearned .back{background:linear-gradient(#4a4f7a 0 55%,#3c4068 55%)}
 .slot.unearned .cnt{color:#9aa0c8}
@@ -124,6 +125,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #help table{width:100%;border-collapse:collapse;font-size:16px;line-height:2.2}
 #help td:first-child{color:var(--t1);width:300px}
 #help p{margin-top:28px;font-size:13px;color:var(--soft);line-height:2}
+#sndHint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:96;font-size:12px;color:var(--gold);background:var(--ink);padding:8px 14px;cursor:pointer;animation:blink 1.2s steps(2) infinite}
+#sndHint.hide{display:none}
 </style>
 </head>
 <body>
@@ -183,26 +186,34 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <tr><td>C · M · F</td><td>Color cámara · Sonido · Pantalla completa</td></tr>
       <tr><td>SHIFT+N</td><td>Nuevo juego (borra puntajes)</td></tr>
     </table>
+    <p>Todo esto también se maneja desde config.html (panel del presentador).</p>
     <p id="camInfo"></p>
   </div></div>
+  <div id="sndHint">CLIC AQUI PARA ACTIVAR EL SONIDO</div>
 </div></div>
 
 <script src="preguntas.js"></script>
+<script src="comun.js"></script>
 <script>
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// La fuente pixel no trae mayúsculas con tilde: Á→A, É→E...
+const px = s => String(s).replace(/[ÁÉÍÓÚÜ]/g, c => 'AEIOUU'['ÁÉÍÓÚÜ'.indexOf(c)]);
+const esc = s => px(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pad = n => String(Math.max(0, n)).padStart(3, '0');
 
-const CFG = Object.assign({
-  titulo: 'CIEN RETRO GAMERS|DIJERON', subtitulo: 'EDICIÓN RETRO',
-  equipos: [{nombre: 'PLAYER 1', jugadores: []}, {nombre: 'PLAYER 2', jugadores: []}]
-}, typeof CONFIG !== 'undefined' ? CONFIG : {});
-const QS = (typeof PREGUNTAS !== 'undefined' && PREGUNTAS.length) ? PREGUNTAS
-  : [{pregunta: 'Agrega tus preguntas en preguntas.js', respuestas: [['Listo', 100]]}];
-const TEAM_COLORS = ['#ff4fa3', '#38e1ff'];
-const teamName = t => CFG.equipos[t].nombre;
-const mult = () => QS[S.q].mult || 1;
-const answers = () => QS[S.q].respuestas.slice(0, 6);
+/* ---------- configuración (viene de config.html vía localStorage) ---------- */
+let CFG, QS;
+function loadConfig() {
+  CFG = CRG.load();
+  QS = CFG.preguntas.length ? CFG.preguntas
+    : [{pregunta: 'Agrega tus preguntas en config.html', mult: 1, respuestas: [['Listo', 100]]}];
+}
+loadConfig();
+const teamName = t => px(CFG.equipos[t].nombre);
+const teamColor = t => CFG.equipos[t].color;
+const playersOf = t => CFG.equipos[t].jugadores.map(p => p.trim()).filter(Boolean);
+const mult = () => CFG.preguntas.length ? CRG.multFor(CFG, S.q) : 1;
+const answers = () => CRG.answers(QS[S.q]);
 
 /* ---------- escalado 1920x1080 ---------- */
 function fit() {
@@ -215,8 +226,10 @@ addEventListener('resize', fit); fit();
 let ac = null, muted = false;
 function audio() {
   if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
-  if (ac && ac.state === 'suspended') ac.resume();
+  if (ac && ac.state === 'suspended') ac.resume().then(soundHint, () => {});
+  soundHint();
 }
+function soundHint() { $('#sndHint').classList.toggle('hide', !!ac && ac.state === 'running'); }
 function tone(f, d, type = 'square', t = 0, v = .1, f2) {
   if (!ac || muted) return;
   const o = ac.createOscillator(), g = ac.createGain(), s = ac.currentTime + t;
@@ -238,9 +251,9 @@ const SFX = {
 };
 
 /* ---------- estado ---------- */
-// Sin persistencia: recargar la página (F5) reinicia todo
+// Sin persistencia: recargar la página (F5) reinicia la partida (la configuración se conserva)
 let screen = 'title';
-const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null});
+const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, player: [0, 0]});
 function resetQuestion(q) { Object.assign(S, {q, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null}); }
 let S = fresh();
 try { localStorage.removeItem('cien-retro-gamers-v1'); } catch (e) {}
@@ -253,29 +266,43 @@ function xsvg() {
   return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges">${r}</svg>`;
 }
 
-/* ---------- montaje inicial ---------- */
-const logoHTML = CFG.titulo.split('|').map(esc).join('<br>');
-$('#hlogo').innerHTML = logoHTML; $('#tlogo').innerHTML = logoHTML;
-$('#tsub').textContent = CFG.subtitulo;
-$('#tva').textContent = teamName(0); $('#tvb').textContent = teamName(1);
-$('#fn0').textContent = teamName(0); $('#fn1').textContent = teamName(1);
+/* ---------- montaje ---------- */
+function applyConfig() {
+  const logoHTML = CFG.titulo.split('|').map(esc).join('<br>');
+  $('#hlogo').innerHTML = logoHTML; $('#tlogo').innerHTML = logoHTML;
+  $('#tsub').textContent = px(CFG.subtitulo);
+  $('#tva').textContent = teamName(0); $('#tvb').textContent = teamName(1);
+  $('#tva').style.color = teamColor(0); $('#tvb').style.color = teamColor(1);
+  $('#fn0').textContent = teamName(0); $('#fn1').textContent = teamName(1);
+  [0, 1].forEach(t => {
+    const el = $('#team' + t);
+    el.style.setProperty('--tc', teamColor(t));
+    el.querySelector('.name span').textContent = teamName(t);
+    S.player[t] = Math.min(S.player[t], Math.max(0, playersOf(t).length - 1));
+  });
+  renderPlayers();
+}
 $('#thint').innerHTML = 'ENTER: JUGAR &nbsp;·&nbsp; H: CONTROLES &nbsp;·&nbsp; F: PANTALLA COMPLETA';
-[0, 1].forEach(t => {
-  const el = $('#team' + t);
-  el.querySelector('.name span').textContent = teamName(t);
-  el.querySelector('.players').innerHTML = (CFG.equipos[t].jugadores || []).slice(0, 6).map(p => `<div>${esc(p)}</div>`).join('');
-  el.addEventListener('click', () => setActive(t));
-});
+[0, 1].forEach(t => $('#team' + t).addEventListener('click', () => { setActive(t); sync(); }));
 for (let i = 0; i < 3; i++) {
   const d = document.createElement('div');
   d.className = 'strike'; d.innerHTML = `<div class="core">${xsvg()}</div>`;
-  d.addEventListener('click', strike);
+  d.addEventListener('click', () => { strike(); sync(); });
   $('#strikes').appendChild(d);
 }
-$('#title').addEventListener('click', start);
+$('#title').addEventListener('click', () => { start(); sync(); });
+document.addEventListener('pointerdown', audio);
+applyConfig();
+soundHint();
 
 /* ---------- render ---------- */
 let slots = [];
+function renderPlayers() {
+  [0, 1].forEach(t => {
+    $('#team' + t).querySelector('.players').innerHTML = playersOf(t)
+      .map((p, i) => `<div class="${i === S.player[t] ? 'cur' : ''}">${esc(p)}</div>`).join('');
+  });
+}
 function renderTeams() {
   [0, 1].forEach(t => {
     const el = $('#team' + t);
@@ -287,6 +314,7 @@ function renderTeams() {
   const l = $('#qlabel');
   l.classList.toggle('steal', S.phase === 'steal');
   l.textContent = S.phase === 'steal' ? `ROBO: ${teamName(S.steal)} - UNA RESPUESTA` : `PREGUNTA ${S.q + 1}`;
+  renderPlayers();
 }
 function renderScores() { [0, 1].forEach(t => $('#team' + t).querySelector('.score').textContent = pad(S.scores[t])); }
 function renderStrikes() { document.querySelectorAll('.strike').forEach((s, i) => s.classList.toggle('on', i < S.strikes)); }
@@ -308,8 +336,8 @@ function renderBoard() {
     const a = A[i], s = document.createElement('div');
     s.className = 'slot noanim' + (a ? '' : ' empty') + (S.revealed[i] ? ' open' : '') + (S.unearned[i] ? ' unearned' : '');
     s.innerHTML = `<div class="flip"><div class="face front">${a ? `<div class="num">${i + 1}</div>` : ''}</div>`
-      + `<div class="face back">${a ? `<div class="ans">${esc(a[0])}</div><div class="cnt">${a[1]}</div>` : ''}</div></div>`;
-    s.addEventListener('click', () => reveal(i));
+      + `<div class="face back">${a ? `<div class="ans">${esc(a[0].toUpperCase())}</div><div class="cnt">${a[1]}</div>` : ''}</div></div>`;
+    s.addEventListener('click', () => { reveal(i); sync(); });
     b.appendChild(s); slots.push(s);
     if (a) fitText(s.querySelector('.ans'), 34, 14);
   }
@@ -343,7 +371,7 @@ function animNum(el, from, to, ms) {
 let bannerT;
 function banner(big, small, color, ms) {
   const b = $('#banner');
-  b.querySelector('.big').textContent = big; b.querySelector('.small').textContent = small || '';
+  b.querySelector('.big').textContent = px(big); b.querySelector('.small').textContent = px(small || '');
   b.style.setProperty('--bc', color || 'var(--gold)');
   b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
   clearTimeout(bannerT); bannerT = setTimeout(() => b.classList.remove('show'), ms || 2400);
@@ -361,40 +389,51 @@ function flashTeam(t) { const e = $('#team' + t); e.classList.remove('flash'); v
 /* ---------- lógica del juego ---------- */
 function setPot(v) { animNum($('#potVal'), S.pot, v, 500); S.pot = v; }
 
+// Rota el jugador que responde dentro del equipo
+function nextPlayer(t) {
+  const n = playersOf(t).length;
+  if (n) S.player[t] = (S.player[t] + 1) % n;
+  renderPlayers();
+}
+const answering = () => S.phase === 'steal' ? S.steal : S.active;
+
 function reveal(i) {
   if (screen !== 'game') return;
   const A = answers();
   if (i >= A.length || S.revealed[i]) return;
+  const who = answering(), phase = S.phase;
   S.revealed[i] = true;
-  if (S.phase === 'done') { S.unearned[i] = true; slots[i].classList.add('unearned'); }
+  if (phase === 'done') { S.unearned[i] = true; slots[i].classList.add('unearned'); }
   slots[i].classList.add('open');
   SFX.reveal();
   const pts = A[i][1] * mult();
-  if (S.phase === 'play') {
+  if (phase === 'play') {
     setPot(S.pot + pts);
     if (S.revealed.filter(Boolean).length === A.length) award(S.active, '¡TABLERO LIMPIO!', 900);
-  } else if (S.phase === 'steal') {
+  } else if (phase === 'steal') {
     setPot(S.pot + pts);
     award(S.steal, '¡ROBO EXITOSO!', 900);
   }
+  if (phase !== 'done') nextPlayer(who);
 }
 
 function strike() {
   if (screen !== 'game') return;
   if (S.phase === 'play' && S.strikes < 3) {
     S.strikes++; renderStrikes(); bigX(S.strikes);
+    nextPlayer(S.active);
     if (S.strikes === 3) {
       S.phase = 'steal'; S.steal = 1 - S.active;
       setTimeout(() => {
         if (S.phase !== 'steal') return;
         renderTeams();
-        banner('¡OPORTUNIDAD DE ROBO!', `${teamName(S.steal)}: UNA SOLA RESPUESTA`, TEAM_COLORS[S.steal], 2800);
-        SFX.steal();
+        banner('¡OPORTUNIDAD DE ROBO!', `${teamName(S.steal)}: UNA SOLA RESPUESTA`, teamColor(S.steal), 2800);
+        SFX.steal(); sync();
       }, 1100);
     }
-
   } else if (S.phase === 'steal') {
     bigX(1);
+    nextPlayer(S.steal);
     award(S.active, '¡ROBO FALLIDO!', 1100);
   }
 }
@@ -413,9 +452,13 @@ function award(t, msg, delay = 0) {
     renderTeams();
     animNum($('#team' + t).querySelector('.score'), from, S.scores[t], 1200);
     animNum($('#potVal'), amount, 0, 1200);
-    banner(msg, `+${amount} PUNTOS PARA ${teamName(t)}`, TEAM_COLORS[t], 2800);
-    flashTeam(t); SFX.award();
+    banner(msg, `+${amount} PUNTOS PARA ${teamName(t)}`, teamColor(t), 2800);
+    flashTeam(t); SFX.award(); sync();
   }, delay);
+}
+function awardActive() {
+  if (S.phase === 'play' && S.pot > 0) award(S.active, '¡RONDA GANADA!');
+  else SFX.nope();
 }
 
 function setActive(t) {
@@ -424,23 +467,28 @@ function setActive(t) {
 }
 
 function revealRest() {
-  if (S.phase !== 'done') return banner('PRIMERO LA BOLSA', 'ESPACIO = DAR BOLSA AL EQUIPO EN TURNO', 'var(--gold)', 1800);
-  answers().forEach((a, i) => { if (!S.revealed[i]) setTimeout(() => reveal(i), 250 * i); });
+  if (S.phase !== 'done') return banner('PRIMERO LA BOLSA', 'DAR LA BOLSA AL EQUIPO EN TURNO', 'var(--gold)', 1800);
+  answers().forEach((a, i) => { if (!S.revealed[i]) setTimeout(() => { reveal(i); sync(); }, 250 * i); });
 }
 
-function adjust(d) {
-  if (screen !== 'game') return;
-  const t = S.phase === 'steal' ? S.steal : S.active;
+function adjust(t, d) {
   S.scores[t] = Math.max(0, S.scores[t] + d); renderScores();
 }
 
 function goQuestion(q) {
+  if (q < 0 || q >= QS.length) return;
+  if (screen !== 'game') setScreen('game');
   resetQuestion(q);
   renderAll(true);
   const m = mult();
   if (m === 2) banner('¡PUNTOS DOBLES!', 'CADA RESPUESTA VALE x2', '#ff9f1c', 2200);
   if (m >= 3) banner('¡PUNTOS TRIPLES!', `CADA RESPUESTA VALE x${m}`, '#ff2a2a', 2200);
   SFX.select();
+}
+function next() { S.q < QS.length - 1 ? goQuestion(S.q + 1) : showFinal(); }
+function prev() {
+  if (screen === 'final') { setScreen('game'); renderAll(false); }
+  else if (S.q > 0) goQuestion(S.q - 1);
 }
 
 function setScreen(name) {
@@ -452,11 +500,13 @@ function setScreen(name) {
 }
 
 function start() {
+  if (screen === 'game') return;
   audio(); SFX.start();
   document.fonts.ready.then(() => {
     setScreen('game');
     if (!S.revealed.length && !S.strikes && !S.pot && S.phase === 'play') goQuestion(S.q);
     else renderAll(false);
+    sync();
   });
 }
 
@@ -464,9 +514,9 @@ function showFinal() {
   setScreen('final');
   const [a, b] = S.scores, w = $('#fwin');
   if (a === b) { w.textContent = '¡EMPATE!'; w.style.color = 'var(--gold)'; }
-  else { const t = a > b ? 0 : 1; w.textContent = `¡GANA ${teamName(t)}!`; w.style.color = TEAM_COLORS[t]; }
+  else { const t = a > b ? 0 : 1; w.textContent = `¡GANA ${teamName(t)}!`; w.style.color = teamColor(t); }
   $('#fs0').textContent = pad(a); $('#fs1').textContent = pad(b);
-  const cols = ['#ff4fa3', '#38e1ff', '#ffd23f', '#ff9f1c', '#7dff6a', '#f7f4ff'];
+  const cols = [teamColor(0), teamColor(1), '#ffd23f', '#ff9f1c', '#7dff6a', '#f7f4ff'];
   for (let i = 0; i < 70; i++) {
     const c = document.createElement('div');
     c.className = 'conf';
@@ -476,11 +526,10 @@ function showFinal() {
   SFX.win();
 }
 
-function newGame() {
-  if (!confirm('¿Nuevo juego? Se borran los puntajes.')) return;
+function resetGame() {
   S = fresh();
   setScreen('title');
-  $('#thint').innerHTML = 'ENTER: JUGAR &nbsp;·&nbsp; H: CONTROLES &nbsp;·&nbsp; F: PANTALLA COMPLETA';
+  applyConfig();
 }
 
 function toggleHelp() {
@@ -492,30 +541,56 @@ function toggleHelp() {
 }
 
 let camMode = 0;
-addEventListener('keydown', e => {
-  audio();
+function cycleCam() { camMode = (camMode + 1) % 3; $('#cam').className = camMode ? 'k' + camMode : ''; }
+
+/* ---------- sincronización con config.html ---------- */
+function sync() { CRG.send({type: 'state', S, screen, muted, camMode}); }
+setInterval(sync, 1000);
+
+const CMD = {
+  reveal: i => reveal(i), strike, undo: undoStrike, active: t => setActive(t), award: awardActive,
+  rest: revealRest, next, prev, goto: q => goQuestion(q), adjust: a => adjust(a.t, a.d),
+  start, title: () => setScreen('title'), final: showFinal, mute: () => { muted = !muted; },
+  cam: cycleCam, player: a => { S.player[a.t] = a.i; renderPlayers(); }, nextPlayer: t => nextPlayer(t),
+  newgame: resetGame
+};
+CRG.on(m => {
+  if (m.type === 'cmd' && CMD[m.cmd]) { audio(); CMD[m.cmd](m.arg); sync(); }
+  else if (m.type === 'config') {
+    loadConfig();
+    if (S.q >= QS.length) resetQuestion(QS.length - 1);
+    applyConfig();
+    if (screen === 'game') renderAll(false);
+    sync();
+  }
+  else if (m.type === 'hello') sync();
+});
+
+/* ---------- teclado (respaldo, mismo control que el panel) ---------- */
+function handleKey(e) {
   const k = e.key, lk = k.toLowerCase();
-  if (k === 'N' && e.shiftKey) return newGame();
+  if (k === 'N' && e.shiftKey) { if (confirm('¿Nuevo juego? Se borran los puntajes.')) resetGame(); return; }
   if (lk === 'h' || (k === 'Escape' && $('#help').classList.contains('show'))) return toggleHelp();
   if (lk === 'f') return document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
   if (lk === 'm') { muted = !muted; return; }
-  if (lk === 'c') { camMode = (camMode + 1) % 3; $('#cam').className = camMode ? 'k' + camMode : ''; return; }
+  if (lk === 'c') return cycleCam();
 
   if (screen === 'title') { if (k === 'Enter' || k === ' ') start(); return; }
-  if (screen === 'final') { if (k === 'ArrowLeft') { setScreen('game'); renderAll(false); } return; }
+  if (screen === 'final') { if (k === 'ArrowLeft') prev(); return; }
 
   if (k >= '1' && k <= '6') return reveal(+k - 1);
   if (lk === 'x') return strike();
   if (k === 'Backspace') { e.preventDefault(); return undoStrike(); }
   if (lk === 'a') return setActive(0);
   if (lk === 'b') return setActive(1);
-  if (k === ' ') { e.preventDefault(); if (S.phase === 'play' && S.pot > 0) award(S.active, '¡RONDA GANADA!'); else SFX.nope(); return; }
+  if (k === ' ') { e.preventDefault(); return awardActive(); }
   if (lk === 'r') return revealRest();
-  if (k === '+' || k === '=') return adjust(5);
-  if (k === '-') return adjust(-5);
-  if (k === 'ArrowRight') return S.q < QS.length - 1 ? goQuestion(S.q + 1) : showFinal();
-  if (k === 'ArrowLeft' && S.q > 0) return goQuestion(S.q - 1);
-});
+  if (k === '+' || k === '=') return adjust(answering(), 5);
+  if (k === '-') return adjust(answering(), -5);
+  if (k === 'ArrowRight') return next();
+  if (k === 'ArrowLeft') return prev();
+}
+addEventListener('keydown', e => { audio(); handleKey(e); sync(); });
 
 /* ---------- fondo: estrellas + grilla ---------- */
 const cv = $('#bg'), cx = cv.getContext('2d');
