@@ -28,6 +28,9 @@ h3 small{color:var(--soft);font-size:10px}
 .spacer{flex:1}
 #conn{font-family:'Press Start 2P',monospace;font-size:10px;padding:10px 12px;background:var(--ink);box-shadow:inset 0 0 0 3px var(--red);color:var(--red)}
 #conn.ok{box-shadow:inset 0 0 0 3px var(--green);color:var(--green)}
+#netSt{color:var(--soft)}#netSt.on{color:var(--green)}#netSt.err{color:var(--red)}
+#online{margin-bottom:16px}
+#online .row2{display:grid;grid-template-columns:1fr 160px;gap:10px}
 #saved{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--green);opacity:0;transition:opacity .3s}
 #saved.show{opacity:1}
 .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
@@ -219,6 +222,18 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
 
   <!-- ============ EQUIPOS ============ -->
   <section class="tab" id="tab-equipos">
+    <div class="card" id="online">
+      <h3>EN LINEA <small id="netSt">APAGADO</small></h3>
+      <p class="note" style="margin:0">Para controlar la pantalla desde otra PC u otra ciudad. Usa el mismo código de sala en el panel y en la pantalla.</p>
+      <label>Código de sala (10 a 32 letras minúsculas o números)</label>
+      <div class="row2"><input id="roomIn" maxlength="32" autocomplete="off" spellcheck="false"><button id="roomGen">GENERAR</button></div>
+      <div class="btns"><button class="gold" id="roomOn">CONECTAR</button><button id="roomOff">DESCONECTAR</button></div>
+      <label>Enlace para la pantalla del juego</label>
+      <div class="row2"><input id="linkGame" readonly><button data-copy="linkGame">COPIAR</button></div>
+      <label>Enlace para otro panel</label>
+      <div class="row2"><input id="linkPanel" readonly><button data-copy="linkPanel">COPIAR</button></div>
+      <p class="note">Quien tenga el código controla el juego y ve las respuestas. No lo publiques. Al conectar, si la sala ya tiene preguntas, se cargan esas en este panel.</p>
+    </div>
     <div class="eq" id="eqForm"></div>
   </section>
 </div>
@@ -257,6 +272,10 @@ document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click',
 
 /* ---------- comunicación con el juego ---------- */
 CRG.on(m => {
+  if (m.type === 'config' && m.remote) {
+    cfg = CRG.load(); sel = Math.min(sel, Math.max(0, cfg.preguntas.length - 1));
+    renderAllForms(); return;
+  }
   if (m.type !== 'state') return;
   st = m; lastSt = Date.now();
   const key = JSON.stringify([m.S, m.screen, m.muted, m.musicOn, m.musicVol, m.sfxVol, m.voiceOn]);
@@ -264,7 +283,7 @@ CRG.on(m => {
   renderConn();
 });
 function renderConn() {
-  const ok = Date.now() - lastSt < 3000;
+  const ok = Date.now() - lastSt < 5000;
   $('#conn').className = ok ? 'ok' : '';
   $('#conn').textContent = ok ? 'PANTALLA CONECTADA' : 'PANTALLA DESCONECTADA';
 }
@@ -529,6 +548,35 @@ $('#eqForm').addEventListener('input', e => {
 
 function renderAllForms() { renderList(); renderEditor(); renderTeamsForm(); renderLive(true); }
 renderAllForms();
+
+/* ---------- en línea ---------- */
+const NET = {off: 'APAGADO', wait: 'CONECTANDO...', on: 'CONECTADO ✓', err: 'ERROR: REVISA INTERNET O REGLAS'};
+function renderNet() {
+  const n = CRG.net(), r = CRG.room(), base = location.href.split('#')[0].replace(/config\.html.*$/i, '');
+  $('#netSt').textContent = NET[n] + (r ? ' · SALA ' + r.toUpperCase() : '');
+  $('#netSt').className = n;
+  $('#linkGame').value = r ? base + 'index.html#sala=' + r : '';
+  $('#linkPanel').value = r ? base + 'config.html#sala=' + r : '';
+}
+CRG.onNet(renderNet);
+$('#roomIn').value = CRG.room();
+$('#roomGen').addEventListener('click', () => {
+  const a = 'abcdefghjkmnpqrstuvwxyz23456789', v = crypto.getRandomValues(new Uint8Array(12));
+  $('#roomIn').value = Array.from(v, x => a[x % a.length]).join('');
+});
+$('#roomOn').addEventListener('click', () => {
+  const v = $('#roomIn').value.trim().toLowerCase();
+  if (!CRG.validRoom(v)) return alert('El código debe tener de 10 a 32 letras minúsculas o números (sin espacios ni acentos).');
+  CRG.setRoom(v); renderNet();
+});
+$('#roomOff').addEventListener('click', () => { CRG.setRoom(''); renderNet(); });
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  const i = $('#' + b.dataset.copy); if (!i.value) return;
+  i.select(); (navigator.clipboard ? navigator.clipboard.writeText(i.value) : Promise.reject()).catch(() => document.execCommand('copy'));
+  b.textContent = 'COPIADO ✓'; setTimeout(() => b.textContent = 'COPIAR', 1200);
+});
+renderNet();
 </script>
 </body>
 </html>
