@@ -120,8 +120,31 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
 .eq .gen{grid-column:1/-1}
 .eq .row2{display:grid;grid-template-columns:1fr 120px;gap:10px}
 
+/* ronda final */
+.rf{display:grid;grid-template-columns:340px 1fr 1fr;gap:16px;align-items:start}
+#rfPlayers button.cur{background:var(--gold);color:var(--ink)}
+#rfPlayers button .k{float:right;font-family:'Press Start 2P',monospace;font-size:11px;margin-top:6px}
+#rfAns{font-size:26px;color:var(--green);margin-bottom:12px;min-height:30px}
+#rfSt{color:var(--soft)}
+.rfp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.rfp>div{background:var(--ink);padding:14px;text-align:center;box-shadow:inset 0 0 0 3px #26307a}
+.rfp .nm{font-family:'Press Start 2P',monospace;font-size:12px;line-height:1.5;min-height:36px}
+.rfp .sc{font-family:'Press Start 2P',monospace;font-size:44px;color:var(--gold);text-shadow:4px 4px 0 #000;margin:12px 0}
+.rfp .btns{margin-top:0}
+#rfTotal{font-family:'Press Start 2P',monospace;font-size:14px;text-align:center;padding:14px;margin-top:12px;background:var(--ink);color:var(--soft)}
+#rfTotal b{color:var(--white);font-size:22px}
+#rfTimer{display:flex;align-items:center;justify-content:center;font-family:'Press Start 2P',monospace;font-size:28px;color:var(--soft);background:var(--ink);box-shadow:inset 0 0 0 3px #26307a}
+#rfTimer.on{color:var(--gold);box-shadow:inset 0 0 0 3px var(--gold)}
+#rfTimer.hot{color:var(--red);box-shadow:inset 0 0 0 3px var(--red)}
+.rfrow{display:grid;grid-template-columns:34px 1fr 1fr 46px;gap:8px;align-items:center;margin-top:8px}
+.rfrow .n{font-family:'Press Start 2P',monospace;font-size:11px;color:var(--gold);text-align:center}
+.rfrow button{padding:10px 0}
+.rfrow.cur .n{color:var(--ink);background:var(--gold);padding:6px 0}
+#rfList{max-height:62vh;overflow:auto;padding-right:4px}
+
 @media (max-width:1250px){.ctl{grid-template-columns:1fr 1fr}.ctl #mid{grid-column:1/-1;order:-1}}
-@media (max-width:820px){.ctl,.pq,.eq{grid-template-columns:1fr}.ans{grid-template-columns:40px 1fr 70px 90px}}
+@media (max-width:1250px){.rf{grid-template-columns:1fr 1fr}.rf>.card:last-child{grid-column:1/-1}}
+@media (max-width:820px){.ctl,.pq,.eq,.rf,.rfrow{grid-template-columns:1fr}.ans{grid-template-columns:40px 1fr 70px 90px}}
 </style>
 </head>
 <body>
@@ -137,6 +160,7 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
   <div class="tabs">
     <button data-tab="control" class="on">CONTROL EN VIVO</button>
     <button data-tab="preg">PREGUNTAS</button>
+    <button data-tab="ronda">RONDA FINAL</button>
     <button data-tab="equipos">EQUIPOS Y AJUSTES</button>
   </div>
 
@@ -220,6 +244,46 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
     </div>
   </section>
 
+  <!-- ============ RONDA FINAL ============ -->
+  <section class="tab" id="tab-ronda">
+    <div class="rf">
+      <div class="card">
+        <h3>1. JUGADORES</h3>
+        <label>Equipo ganador</label>
+        <div class="btns" id="rfTeams" style="margin-top:0"></div>
+        <label>Los 2 que eligió el equipo</label>
+        <div class="plist" id="rfPlayers"></div>
+        <div class="btns"><button class="gold big" id="rfStart">EMPEZAR RONDA FINAL</button></div>
+        <div class="btns"><button data-cmd="rfShow">VOLVER A LA RONDA</button><button data-cmd="final">PANTALLA GANADOR</button></div>
+        <p class="note">Primero termina el juego normal (FINAL). Luego el equipo ganador escoge a sus 2 jugadores.</p>
+      </div>
+
+      <div class="card">
+        <h3>2. EN VIVO <small id="rfSt"></small></h3>
+        <div class="qhead"><span id="rfNum">-</span></div>
+        <div class="qtext" id="rfQ"></div>
+        <div id="rfAns"></div>
+        <div class="btns"><button data-cmd="rfPrev">◀ ANTERIOR</button><button data-cmd="rfNext">SIGUIENTE ▶</button></div>
+        <div class="actions"><button class="big" data-cmd="timer" id="rfTimerBtn">INICIAR TIEMPO (T)</button><div id="rfTimer">--</div></div>
+        <div class="rfp" id="rfPts"></div>
+        <div id="rfTotal">TOTAL <b>0</b></div>
+        <div class="btns"><button class="big red" data-cmd="rfEnd">TERMINAR Y MOSTRAR GANADOR</button></div>
+        <div class="btns"><button data-cmd="rfReopen">QUITAR GANADOR Y SEGUIR</button></div>
+        <p class="note">Teclado en esta pestaña: 1 / 2 dar +1 · T tiempo · ← → pregunta</p>
+      </div>
+
+      <div class="card">
+        <h3>PREGUNTAS RONDA FINAL <small id="rfCount"></small></h3>
+        <label>Segundos del temporizador (5 a 300)</label>
+        <input type="number" id="rfTime" min="5" max="300">
+        <div class="rfrow arow head" style="grid-template-columns:34px 1fr 1fr 46px"><span>#</span><span>PREGUNTA</span><span>RESPUESTA (AYUDA)</span><span></span></div>
+        <div id="rfList"></div>
+        <div class="btns"><button class="gold" id="rfAdd">+ AGREGAR PREGUNTA</button></div>
+        <p class="note">La respuesta es solo una ayuda para el presentador: no sale en la pantalla.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ EQUIPOS ============ -->
   <section class="tab" id="tab-equipos">
     <div class="card" id="online">
@@ -239,7 +303,7 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
 </div>
 
 <script src="preguntas.js"></script>
-<script src="comun.js?v=2"></script>
+<script src="comun.js?v=3"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -297,6 +361,10 @@ setInterval(() => {
   el.className = t ? (left <= 5 ? 'hot' : 'on') : '';
   $('#stTimer').textContent = t ? left + 's' : '-';
   $('#timerBtn').textContent = t ? 'PARAR TIEMPO (T)' : 'INICIAR TIEMPO (T)';
+  const rf = $('#rfTimer');
+  rf.textContent = t ? left + 's' : cfg.tiempoFinal + 's';
+  rf.className = t ? (left <= 5 ? 'hot' : 'on') : '';
+  $('#rfTimerBtn').textContent = t ? 'PARAR TIEMPO (T)' : 'INICIAR TIEMPO (T)';
 }, 200);
 CRG.send({type: 'hello'});
 
@@ -320,6 +388,7 @@ function renderLive(force) {
   if (force || sel2.options.length !== n) {
     sel2.innerHTML = cfg.preguntas.map((p, i) => `<option value="${i}">${i + 1}. ${esc(p.pregunta || '(sin texto)').slice(0, 60)}</option>`).join('');
   }
+  renderRF();
   if (!st) {
     $('#lvAns').innerHTML = '<div id="lvEmpty">Abre la pantalla del juego<br>(botón amarillo arriba)</div>';
     $('#teamsLive').innerHTML = '';
@@ -328,7 +397,7 @@ function renderLive(force) {
   const S = st.S, q = cfg.preguntas[S.q], A = CRG.answers(q), m = n ? CRG.multFor(cfg, S.q) : 1;
   const tn = t => esc(px(cfg.equipos[t].nombre));
 
-  $('#stScreen').textContent = {title: 'TITULO', game: 'EN JUEGO', final: 'FINAL', intro: 'PRESENTACION'}[st.screen] || '-';
+  $('#stScreen').textContent = {title: 'TITULO', game: 'EN JUEGO', final: 'FINAL', intro: 'PRESENTACION', ronda: 'RONDA FINAL'}[st.screen] || '-';
   $('#stQ').textContent = n ? `${S.q + 1} / ${n}` : '-';
   $('#stMult').textContent = 'x' + m;
   $('#stPot').textContent = pad(S.pot);
@@ -378,7 +447,14 @@ function renderLive(force) {
 
 // Atajos de teclado en el panel (solo en CONTROL y fuera de campos de texto)
 addEventListener('keydown', e => {
-  if (!$('#tab-control').classList.contains('show') || e.target.closest('input,textarea,select')) return;
+  if (e.target.closest('input,textarea,select')) return;
+  if ($('#tab-ronda').classList.contains('show')) {
+    const k = e.key, c = k === '1' || k === '2' ? ['rfPoint', {k: +k - 1, d: 1}] : k.toLowerCase() === 't' ? ['timer']
+      : k === 'ArrowRight' ? ['rfNext'] : k === 'ArrowLeft' ? ['rfPrev'] : null;
+    if (c) { e.preventDefault(); send(c[0], c[1]); }
+    return;
+  }
+  if (!$('#tab-control').classList.contains('show')) return;
   const k = e.key, lk = k.toLowerCase(), S = st && st.S;
   let c = null, a;
   if (k >= '1' && k <= '6') { c = 'reveal'; a = +k - 1; }
@@ -546,7 +622,71 @@ $('#eqForm').addEventListener('input', e => {
   persist();
 });
 
-function renderAllForms() { renderList(); renderEditor(); renderTeamsForm(); renderLive(true); }
+/* ---------- ronda final ---------- */
+const rfSel = {t: null, picks: []};
+const pName = (t, i) => esc(px(cfg.equipos[t].jugadores[i].trim() || `JUGADOR ${i + 1}`));
+function renderRF() {
+  const S = st && st.S, R = S && S.rf;
+  if (rfSel.t === null && S) rfSel.t = S.scores[1] > S.scores[0] ? 1 : 0;
+  const t = rfSel.t || 0;
+  $('#rfTeams').innerHTML = [0, 1].map(k => `<button class="${k === t ? 'on' : ''}" data-rft="${k}">${esc(px(cfg.equipos[k].nombre))}${S ? ' · ' + S.scores[k] : ''}</button>`).join('');
+  rfSel.picks = rfSel.picks.filter(i => cfg.equipos[t].jugadores[i].trim());
+  $('#rfPlayers').innerHTML = cfg.equipos[t].jugadores.map((j, i) => j.trim()
+    ? `<button class="${rfSel.picks.includes(i) ? 'cur' : ''}" data-rfp="${i}">${esc(px(j))}${rfSel.picks.includes(i) ? `<span class="k">${rfSel.picks.indexOf(i) + 1}</span>` : ''}</button>` : '').join('')
+    || '<p class="note">Este equipo no tiene jugadores.</p>';
+  $('#rfStart').disabled = rfSel.picks.length !== 2;
+
+  const F = cfg.final, n = F.length, on = st && st.screen === 'ronda';
+  $('#rfSt').textContent = !R ? '' : on ? (R.done ? '· TERMINADA' : '· EN PANTALLA') : '· NO ESTA EN PANTALLA';
+  const q = R && F[R.q];
+  $('#rfNum').textContent = n ? `PREGUNTA ${(R ? R.q : 0) + 1} DE ${n}` : 'SIN PREGUNTAS';
+  $('#rfQ').textContent = q ? q.pregunta : n ? F[0].pregunta : 'Agrega preguntas abajo';
+  $('#rfAns').textContent = q && q.respuesta ? 'RESPUESTA: ' + q.respuesta : '';
+  $('#rfPts').innerHTML = [0, 1].map(k => `<div><div class="nm">${R ? pName(R.t, R.picks[k]) : 'JUGADOR ' + (k + 1)}</div>`
+    + `<div class="sc">${R ? R.pts[k] : 0}</div><div class="btns"><button class="gold" data-cmd="rfPoint" data-arg='{"k":${k},"d":1}'>+1</button>`
+    + `<button data-cmd="rfPoint" data-arg='{"k":${k},"d":-1}'>-1</button></div></div>`).join('');
+  $('#rfTotal').innerHTML = `TOTAL <b>${R ? R.pts[0] + R.pts[1] : 0}</b>`;
+  document.querySelectorAll('.rfrow[data-i]').forEach(r => r.classList.toggle('cur', !!R && on && +r.dataset.i === R.q));
+}
+function renderRFList() {
+  $('#rfTime').value = cfg.tiempoFinal;
+  $('#rfCount').textContent = `(${cfg.final.length})`;
+  $('#rfList').innerHTML = cfg.final.map((p, i) => `<div class="rfrow" data-i="${i}"><span class="n">${i + 1}</span>`
+    + `<input data-rfq="${i}" data-k="pregunta" maxlength="120" value="${esc(p.pregunta)}" placeholder="Pregunta">`
+    + `<input data-rfq="${i}" data-k="respuesta" maxlength="60" value="${esc(p.respuesta)}" placeholder="Respuesta">`
+    + `<button class="danger" data-rfdel="${i}" title="Borrar">✖</button></div>`).join('')
+    || '<p class="note">No hay preguntas de ronda final todavía.</p>';
+  renderRF();
+}
+$('#tab-ronda').addEventListener('click', e => {
+  const b = e.target.closest('[data-rft],[data-rfp],[data-rfdel]'); if (!b) return;
+  if (b.dataset.rft !== undefined) { rfSel.t = +b.dataset.rft; rfSel.picks = []; }
+  else if (b.dataset.rfp !== undefined) {
+    const i = +b.dataset.rfp, P = rfSel.picks;
+    P.includes(i) ? P.splice(P.indexOf(i), 1) : (P.length === 2 && P.shift(), P.push(i));
+  } else {
+    const i = +b.dataset.rfdel;
+    if ((cfg.final[i].pregunta || cfg.final[i].respuesta) && !confirm('¿Borrar esta pregunta de la ronda final?')) return;
+    cfg.final.splice(i, 1); renderRFList(); persist(true); return;
+  }
+  renderRF();
+});
+$('#rfStart').addEventListener('click', () => {
+  if (rfSel.picks.length !== 2) return;
+  if (st && st.screen === 'ronda' && !confirm('Ya hay una ronda final en pantalla. ¿Empezar de nuevo (puntajes en 0)?')) return;
+  send('rfStart', {t: rfSel.t || 0, a: rfSel.picks[0], b: rfSel.picks[1]});
+});
+$('#rfAdd').addEventListener('click', () => {
+  cfg.final.push({pregunta: '', respuesta: ''}); renderRFList(); persist(true);
+  $(`[data-rfq="${cfg.final.length - 1}"]`).focus();
+});
+$('#rfList').addEventListener('input', e => {
+  const x = e.target; if (x.dataset.rfq === undefined) return;
+  cfg.final[+x.dataset.rfq][x.dataset.k] = x.value; persist();
+});
+$('#rfTime').addEventListener('input', e => { cfg.tiempoFinal = Math.min(300, Math.max(5, parseInt(e.target.value, 10) || 60)); persist(); });
+
+function renderAllForms() { renderList(); renderEditor(); renderTeamsForm(); renderRFList(); renderLive(true); }
 renderAllForms();
 
 /* ---------- en línea ---------- */

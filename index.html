@@ -149,12 +149,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 /* temporizador */
 #timer{position:absolute;right:36px;top:16px;display:none;align-items:center;gap:14px}
 #timer.on{display:flex}
-#timer .bar{width:300px;height:26px;padding:5px;background:var(--ink);box-shadow:inset 0 0 0 3px var(--gold)}
-#timer .bar i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--gold) 0 14px,transparent 14px 18px)}
-#timer b{width:64px;text-align:right;font-size:24px;color:var(--gold);text-shadow:3px 3px 0 #000}
-#timer.hot .bar{box-shadow:inset 0 0 0 3px var(--red)}
-#timer.hot .bar i{background:repeating-linear-gradient(90deg,var(--red) 0 14px,transparent 14px 18px)}
-#timer.hot b{color:var(--red);animation:blink .5s steps(2) infinite}
+:is(#timer,#rtimer) .bar{width:300px;height:26px;padding:5px;background:var(--ink);box-shadow:inset 0 0 0 3px var(--gold)}
+:is(#timer,#rtimer) .bar i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--gold) 0 14px,transparent 14px 18px)}
+:is(#timer,#rtimer) b{width:64px;text-align:right;font-size:24px;color:var(--gold);text-shadow:3px 3px 0 #000}
+:is(#timer,#rtimer).hot .bar{box-shadow:inset 0 0 0 3px var(--red)}
+:is(#timer,#rtimer).hot .bar i{background:repeating-linear-gradient(90deg,var(--red) 0 14px,transparent 14px 18px)}
+:is(#timer,#rtimer).hot b{color:var(--red);animation:blink .5s steps(2) infinite}
 
 /* presentación de equipos */
 #intro{gap:60px}
@@ -171,6 +171,39 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .ivs b{font-size:160px;color:var(--gold);text-shadow:10px 10px 0 #b3001b;animation:pop .5s steps(4) .5s both}
 @keyframes slideL{from{transform:translateX(-1200px)}to{transform:none}}
 @keyframes slideR{from{transform:translateX(1200px)}to{transform:none}}
+
+/* ronda final: 2 jugadores del equipo ganador, cámara de cada uno */
+#ronda{position:absolute;inset:0;display:none}
+#ronda.show{display:block}
+.rhead{position:absolute;left:40px;right:40px;top:26px;height:96px;display:flex;align-items:center;gap:30px}
+#rlogo{flex:0 0 1000px;height:96px;display:flex;align-items:center;padding:0 36px;font-size:32px;text-shadow:4px 4px 0 #000;white-space:nowrap;overflow:hidden;clip-path:var(--notch);background:linear-gradient(var(--blue1) 0 50%,var(--blue2) 50%);box-shadow:inset 0 0 0 6px var(--gold),inset 0 0 0 10px var(--ink)}
+#rtag{flex:1;text-align:center;font-size:34px;color:var(--gold);text-shadow:4px 4px 0 #b3001b,7px 7px 0 #000}
+#rtimer{display:flex;align-items:center;gap:14px;visibility:hidden}
+#rtimer.on{visibility:visible}
+#rtimer .bar{width:260px}
+#rq{position:absolute;left:40px;right:40px;top:142px;height:112px;clip-path:var(--notch);background:rgba(5,6,26,.85);box-shadow:inset 0 0 0 6px var(--gold),inset 0 0 0 10px var(--ink);padding:42px 40px 14px}
+#rqlabel{position:absolute;left:36px;top:18px;font-size:13px;color:var(--gold)}
+#rqtext{height:100%;font-size:34px;line-height:1.3;text-align:center;text-shadow:3px 3px 0 #000;overflow:hidden;overflow-wrap:break-word}
+#rqtext .ghost{visibility:hidden}
+.rside{--tc:var(--t0);position:absolute;top:274px;width:900px}
+#rs0{left:40px}#rs1{right:40px}
+.rframe{height:520px;padding:16px;clip-path:var(--notch);background:linear-gradient(#2b2f4a 0 50%,#22253c 50%);box-shadow:inset 0 0 0 6px var(--tc),inset 0 0 0 10px var(--ink)}
+.rcam{position:relative;z-index:75;width:868px;height:488px;background:#00ff00}
+.rcam.k1{background:#0000ff}.rcam.k2{background:#000}
+.rname{margin-top:12px;height:70px;display:flex;align-items:center;justify-content:center;padding:0 20px;font-size:30px;text-shadow:4px 4px 0 #000;white-space:nowrap;overflow:hidden;clip-path:var(--notch);background:linear-gradient(var(--blue1) 0 50%,var(--blue2) 50%);box-shadow:inset 0 0 0 5px var(--tc),inset 0 0 0 9px var(--ink)}
+.rscore{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:16px}
+.rpts,#rtot{height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;clip-path:var(--notch)}
+.rpts{width:400px;background:var(--ink);box-shadow:inset 0 0 0 6px var(--gold)}
+.rpts b{font-size:72px;color:var(--gold);text-shadow:5px 5px 0 #b3001b}
+.rpts span,#rtot span{font-size:13px;color:var(--t1)}
+.rpts.pop b{animation:pop .3s steps(3)}
+.rplus{width:120px;height:110px;font-family:inherit;font-size:30px;color:var(--ink);border:0;cursor:pointer;clip-path:var(--notch);background:linear-gradient(#7dff6a 0 50%,#3ccf4e 50%);box-shadow:inset 0 0 0 5px #1f7a2c}
+.rplus:active{transform:translate(3px,3px)}
+#rtot{position:absolute;left:770px;width:380px;top:892px;background:linear-gradient(var(--blue1) 0 50%,var(--blue2) 50%);box-shadow:inset 0 0 0 6px var(--t1),inset 0 0 0 10px var(--ink)}
+#rtot b{font-size:64px;text-shadow:5px 5px 0 #000}
+.rside.win .rframe{animation:winf .5s steps(2) infinite}
+.rside.win .rpts b{animation:blink .6s steps(2) infinite}
+@keyframes winf{50%{box-shadow:inset 0 0 0 6px var(--gold),inset 0 0 0 10px var(--ink)}}
 </style>
 </head>
 <body>
@@ -196,6 +229,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
   </section>
 
   <section id="board"></section>
+
+  <section id="ronda">
+    <div class="rhead"><div id="rlogo"></div><div id="rtag">RONDA FINAL</div><div id="rtimer"><div class="bar"><i></i></div><b>60</b></div></div>
+    <div id="rq"><div id="rqlabel"></div><div id="rqtext"></div></div>
+    <div class="rside" id="rs0"><div class="rframe"><div class="rcam"></div></div><div class="rname"></div>
+      <div class="rscore"><div class="rpts"><b>0</b><span>PUNTAJE</span></div><button class="rplus" data-p="0">+1</button></div></div>
+    <div class="rside" id="rs1"><div class="rframe"><div class="rcam"></div></div><div class="rname"></div>
+      <div class="rscore"><div class="rpts"><b>0</b><span>PUNTAJE</span></div><button class="rplus" data-p="1">+1</button></div></div>
+    <div id="rtot"><b>0</b><span>TOTAL</span></div>
+  </section>
 
   <div id="crt"></div>
   <div id="bigx"></div>
@@ -239,6 +282,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <tr><td>+ / -</td><td>Ajustar 5 pts al equipo en turno</td></tr>
       <tr><td>C · M · P · F</td><td>Color cámara · Silenciar todo · Música · Pantalla completa</td></tr>
       <tr><td>SHIFT+N</td><td>Nuevo juego (borra puntajes)</td></tr>
+      <tr><td>RONDA FINAL</td><td>1 / 2: +1 al jugador · T: tiempo · FLECHAS: pregunta · ENTER: ganador</td></tr>
     </table>
     <p>Todo esto también se maneja desde config.html (panel del presentador).</p>
     <p id="camInfo"></p>
@@ -247,7 +291,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 </div></div>
 
 <script src="preguntas.js"></script>
-<script src="comun.js?v=2"></script>
+<script src="comun.js?v=3"></script>
 <script>
 const $ = s => document.querySelector(s);
 // La fuente pixel no trae mayúsculas con tilde: Á→A, É→E...
@@ -470,6 +514,7 @@ const mus = {track: null, step: 0, next: 0};
 function musicFor() {
   if (!AUD.musicOn) return null;
   if (screen === 'final') return finalStage ? 'victory' : null;
+  if (screen === 'ronda') return S.rf.done ? (finalStage ? 'victory' : null) : S.timer ? 'tension' : 'game';
   if (screen !== 'game') return 'title';
   if (S.phase === 'steal') return 'steal';
   return S.timer ? 'tension' : 'game';
@@ -491,7 +536,8 @@ setInterval(() => {
 /* ---------- estado ---------- */
 // Sin persistencia: recargar la página (F5) reinicia la partida (la configuración se conserva)
 let screen = 'title';
-const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, player: [0, 0], timer: null});
+const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, player: [0, 0], timer: null,
+  rf: {t: 0, picks: [0, 1], q: 0, pts: [0, 0], done: false}});
 function resetQuestion(q) { Object.assign(S, {q, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, timer: null}); }
 let S = fresh();
 try { localStorage.removeItem('cien-retro-gamers-v1'); } catch (e) {}
@@ -586,9 +632,10 @@ function renderBoard() {
   requestAnimationFrame(() => slots.forEach(s => s.classList.remove('noanim')));
 }
 let typeTok = 0;
-function renderQuestion(type) {
-  const el = $('#question'), text = QS[S.q].pregunta, tok = ++typeTok;
-  el.textContent = text; fitText(el, 60, 22);
+function renderQuestion(type) { typeText($('#question'), QS[S.q].pregunta, 60, 22, type); }
+function typeText(el, text, max, min, type) {
+  const tok = ++typeTok;
+  el.textContent = px(text); fitText(el, max, min);
   if (!type) return;
   let i = 0;
   (function step() {
@@ -739,15 +786,18 @@ function prev() {
 /* ---------- temporizador por respuesta ---------- */
 let lastSec = null;
 function startTimer() {
-  if (screen !== 'game' || S.phase === 'done') return SFX.nope();
-  S.timer = {end: Date.now() + CFG.tiempo * 1000, total: CFG.tiempo};
+  const r = screen === 'ronda';
+  if (r ? S.rf.done : (screen !== 'game' || S.phase === 'done')) return SFX.nope();
+  const total = r ? CFG.tiempoFinal : CFG.tiempo;
+  S.timer = {end: Date.now() + total * 1000, total};
   lastSec = null; renderTimer(); SFX.select();
 }
 function stopTimer() { if (S.timer) { S.timer = null; renderTimer(); } }
 function toggleTimer() { S.timer ? stopTimer() : startTimer(); }
 function renderTimer() {
-  const el = $('#timer'), on = !!S.timer;
-  el.classList.toggle('on', on);
+  const r = screen === 'ronda', on = !!S.timer, el = $(r ? '#rtimer' : '#timer');
+  $('#timer').classList.toggle('on', on && !r);
+  $('#rtimer').classList.toggle('on', on && r);
   if (!on) return;
   const left = Math.max(0, (S.timer.end - Date.now()) / 1000);
   el.querySelector('i').style.width = (left / S.timer.total * 100) + '%';
@@ -760,6 +810,7 @@ setInterval(() => {
   if (sec !== lastSec && sec > 0) { lastSec = sec; sec <= 5 ? tone(1400, .08, 'square', 0, .1) : tone(900, .03, 'square', 0, .05); }
   if (left > 0) return renderTimer();
   S.timer = null; renderTimer();
+  if (screen === 'ronda') { banner('¡TIEMPO!', '', '#ff2a2a', 1500); BOARD.bocina(); return sync(); }
   banner('¡TIEMPO!', CFG.autoError ? 'CUENTA COMO ERROR' : '', '#ff2a2a', 1300);
   CFG.autoError ? strike() : SFX.nope();
   sync();
@@ -807,6 +858,7 @@ function setScreen(name) {
   screen = name;
   $('#title').classList.toggle('show', name === 'title');
   $('#final').classList.toggle('show', name === 'final');
+  $('#ronda').classList.toggle('show', name === 'ronda');
   $('#world').classList.toggle('onscreen', name !== 'game');
   document.querySelectorAll('.conf,.fw').forEach(c => c.remove());
 }
@@ -847,7 +899,7 @@ function trophySvg() {
   return `<svg viewBox="0 0 14 14" shape-rendering="crispEdges">${r}</svg>`;
 }
 const finalCols = () => [teamColor(0), teamColor(1), '#ffd23f', '#ff9f1c', '#7dff6a', '#f7f4ff'];
-function firework() {
+function firework(parent) {
   const fw = document.createElement('div'), cols = finalCols(), c = cols[Math.floor(Math.random() * cols.length)];
   fw.className = 'fw';
   fw.style.cssText = `left:${150 + Math.random() * 1620}px;top:${100 + Math.random() * 420}px`;
@@ -855,9 +907,18 @@ function firework() {
     const ang = i / 16 * Math.PI * 2, d = 110 + Math.random() * 70;
     fw.innerHTML += `<i style="--c:${c};--x:${Math.round(Math.cos(ang) * d)}px;--y:${Math.round(Math.sin(ang) * d)}px"></i>`;
   }
-  $('#final').appendChild(fw);
+  (parent || $('#final')).appendChild(fw);
   setTimeout(() => fw.remove(), 1200);
   if (ac) noise(.35, ac.currentTime, .06, 500, sfxBus);
+}
+function confetti(parent) {
+  const cols = finalCols();
+  for (let i = 0; i < 70; i++) {
+    const c = document.createElement('div');
+    c.className = 'conf';
+    c.style.cssText = `left:${Math.random() * 1920}px;background:${cols[i % cols.length]};animation-duration:${2.5 + Math.random() * 3}s;animation-delay:${-Math.random() * 5}s`;
+    parent.appendChild(c);
+  }
 }
 function showFinal() {
   setScreen('final');
@@ -877,18 +938,80 @@ function showFinal() {
   seqT.push(setTimeout(() => {
     f.classList.add('rev');
     animNum($('#fs0'), 0, a, 1500); animNum($('#fs1'), 0, b, 1500);
-    const cols = finalCols();
-    for (let i = 0; i < 70; i++) {
-      const c = document.createElement('div');
-      c.className = 'conf';
-      c.style.cssText = `left:${Math.random() * 1920}px;background:${cols[i % cols.length]};animation-duration:${2.5 + Math.random() * 3}s;animation-delay:${-Math.random() * 5}s`;
-      f.appendChild(c);
-    }
+    confetti(f);
     SFX.win();
     fwT = setInterval(firework, 700);
     seqT.push(setTimeout(() => { finalStage = true; }, 1800));
   }, 2300));
 }
+
+/* ---------- ronda final ---------- */
+// Dos jugadores del equipo ganador (los eligen sus compañeros) se enfrentan: +1 por acierto, gana quien sume más
+const rfName = k => {
+  const i = S.rf.picks[k], j = (CFG.equipos[S.rf.t].jugadores[i] || '').trim();
+  return px(j || `JUGADOR ${i + 1}`);
+};
+function rfScores() {
+  const R = S.rf;
+  [0, 1].forEach(k => $('#rs' + k).querySelector('.rpts b').textContent = R.pts[k]);
+  $('#rtot b').textContent = R.pts[0] + R.pts[1];
+}
+function renderRonda(type) {
+  const R = S.rf, n = CFG.final.length;
+  if (R.q >= n) R.q = Math.max(0, n - 1);
+  $('#rlogo').textContent = px(CFG.titulo.replace(/\|/g, ' '));
+  [0, 1].forEach(k => {
+    const el = $('#rs' + k);
+    el.style.setProperty('--tc', teamColor(R.t));
+    el.querySelector('.rname').textContent = rfName(k);
+    el.classList.toggle('win', R.done && finalStage && R.pts[k] > R.pts[1 - k]);
+  });
+  rfScores();
+  $('#rqlabel').textContent = n ? `PREGUNTA ${R.q + 1} DE ${n}` : 'RONDA FINAL';
+  typeText($('#rqtext'), n ? CFG.final[R.q].pregunta : 'Agrega las preguntas de la ronda final en el panel', 34, 18, type && n);
+  renderTimer();
+}
+function rfStart(a) {
+  const ps = CFG.equipos[a.t] && CFG.equipos[a.t].jugadores;
+  if (!ps || a.a === a.b || !(ps[a.a] || '').trim() || !(ps[a.b] || '').trim()) return SFX.nope();
+  S.rf = {t: a.t, picks: [a.a, a.b], q: 0, pts: [0, 0], done: false};
+  setScreen('ronda'); renderRonda(false);
+  SFX.start();
+  banner('¡RONDA FINAL!', `${rfName(0)} VS ${rfName(1)}`, teamColor(a.t), 2600);
+  seqT.push(setTimeout(() => renderRonda(true), 2700));
+}
+function rfShow() { if (screen !== 'ronda') { setScreen('ronda'); renderRonda(false); } }
+function rfPoint(k, d) {
+  if (screen !== 'ronda' || S.rf.done) return SFX.nope();
+  const R = S.rf, from = R.pts[k];
+  R.pts[k] = Math.max(0, from + d);
+  if (R.pts[k] === from) return SFX.nope();
+  rfScores();
+  const b = $('#rs' + k).querySelector('.rpts');
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+  d > 0 ? BOARD.correcto() : SFX.nope();
+}
+function rfGo(q) {
+  if (screen !== 'ronda' || q < 0 || q >= CFG.final.length) return SFX.nope();
+  stopTimer(); S.rf.q = q; renderRonda(true); SFX.select();
+}
+function rfEnd() {
+  if (screen !== 'ronda' || S.rf.done) return SFX.nope();
+  stopTimer(); S.rf.done = true;
+  const [a, b] = S.rf.pts, tie = a === b, w = a > b ? 0 : 1;
+  if (ac) BOARD.redoble();
+  banner('Y EL GANADOR ES...', '', 'var(--gold)', 2300);
+  seqT.push(setTimeout(() => {
+    finalStage = true;
+    [0, 1].forEach(k => $('#rs' + k).classList.toggle('win', !tie && k === w));
+    banner(tie ? '¡EMPATE!' : `¡GANA ${rfName(w)}!`, `${a} A ${b}`, tie ? 'var(--gold)' : teamColor(S.rf.t), 9000);
+    confetti($('#ronda')); SFX.win();
+    fwT = setInterval(() => firework($('#ronda')), 700);
+    sync();
+  }, 2300));
+}
+function rfReopen() { if (!S.rf.done) return; S.rf.done = false; setScreen('ronda'); renderRonda(false); }
+document.querySelectorAll('.rplus').forEach(b => b.addEventListener('click', () => { rfPoint(+b.dataset.p, 1); sync(); }));
 
 function resetGame() {
   S = fresh();
@@ -905,7 +1028,10 @@ function toggleHelp() {
 }
 
 let camMode = 0;
-function cycleCam() { camMode = (camMode + 1) % 3; $('#cam').className = camMode ? 'k' + camMode : ''; }
+function cycleCam() {
+  camMode = (camMode + 1) % 3; $('#cam').className = camMode ? 'k' + camMode : '';
+  document.querySelectorAll('.rcam').forEach(c => c.className = 'rcam' + (camMode ? ' k' + camMode : ''));
+}
 
 /* ---------- sincronización con config.html ---------- */
 function sync() { CRG.send({type: 'state', S, screen, muted, camMode, musicOn: AUD.musicOn, musicVol: AUD.musicVol, sfxVol: AUD.sfxVol, voiceOn: AUD.voiceOn}); }
@@ -920,6 +1046,8 @@ const CMD = {
   vol: a => { if (a.music !== undefined) AUD.musicVol = +a.music; if (a.sfx !== undefined) AUD.sfxVol = +a.sfx; applyAudio(); },
   cam: cycleCam, player: a => { S.player[a.t] = a.i; renderPlayers(); }, nextPlayer: t => nextPlayer(t),
   newgame: resetGame, timer: toggleTimer, stopTimer, intro,
+  rfStart, rfShow, rfEnd, rfReopen, rfPoint: a => rfPoint(a.k, a.d), rfGo,
+  rfNext: () => rfGo(S.rf.q + 1), rfPrev: () => rfGo(S.rf.q - 1),
   sfx: n => { if (BOARD[n]) BOARD[n](); }
 };
 CRG.on(m => {
@@ -929,6 +1057,7 @@ CRG.on(m => {
     if (S.q >= QS.length) resetQuestion(QS.length - 1);
     applyConfig();
     if (screen === 'game') renderAll(false);
+    if (screen === 'ronda') renderRonda(false);
     sync();
   }
   else if (m.type === 'hello') sync();
@@ -947,6 +1076,14 @@ function handleKey(e) {
 
   if (screen === 'title') { if ((k === 'Enter' || k === ' ') && !wake) start(); return; }
   if (screen === 'final') { if (k === 'ArrowLeft') prev(); return; }
+  if (screen === 'ronda') {
+    if (k === '1' || k === '2') return rfPoint(+k - 1, 1);
+    if (lk === 't') return toggleTimer();
+    if (k === 'ArrowRight') return rfGo(S.rf.q + 1);
+    if (k === 'ArrowLeft') return rfGo(S.rf.q - 1);
+    if (k === 'Enter') return rfEnd();
+    return;
+  }
 
   if (k >= '1' && k <= '6') return reveal(+k - 1);
   if (lk === 'x') return strike();

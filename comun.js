@@ -25,6 +25,11 @@ const CRG = (() => {
       subtitulo: String(src.subtitulo ?? def.subtitulo),
       tiempo: Math.min(120, Math.max(5, parseInt(src.tiempo, 10) || 15)),
       autoError: src.autoError !== false,
+      tiempoFinal: Math.min(300, Math.max(5, parseInt(src.tiempoFinal, 10) || 60)),
+      // Ronda final: preguntas propias; la respuesta solo la ve el presentador
+      final: (Array.isArray(src.final) ? src.final : []).map(p => ({
+        pregunta: String((p && p.pregunta) || ''), respuesta: String((p && p.respuesta) || '')
+      })),
       equipos: [0, 1].map(t => {
         const e = (src.equipos || [])[t] || def.equipos[t] || {};
         const j = Array.isArray(e.jugadores) ? e.jugadores : [];
