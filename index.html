@@ -27,7 +27,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 /* ---------- header ---------- */
 #top{position:absolute;left:30px;right:30px;top:20px;height:190px;display:grid;grid-template-columns:640px 1fr 640px;gap:20px}
-.team{--tc:var(--t0);position:relative;cursor:pointer;clip-path:var(--notch);background:linear-gradient(#141c66 0 50%,#10175a 50%);box-shadow:inset 0 0 0 6px var(--tc),inset 0 0 0 10px var(--ink);padding:24px 26px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;gap:12px 18px}
+.team{--tc:var(--t0);position:relative;clip-path:var(--notch);background:linear-gradient(#141c66 0 50%,#10175a 50%);box-shadow:inset 0 0 0 6px var(--tc),inset 0 0 0 10px var(--ink);padding:24px 26px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;gap:12px 18px}
 .team.t1{--tc:var(--t1)}
 .team.active{background:linear-gradient(#26359f 0 50%,#1d2a88 50%)}
 .team.flash{animation:tflash .9s steps(6)}
@@ -59,7 +59,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #cam{position:relative;z-index:75;width:640px;height:360px;background:#00ff00}
 #cam.k1{background:#0000ff}#cam.k2{background:#000}
 #strikes{display:flex;flex-direction:column;justify-content:space-between}
-.strike{width:120px;height:120px;padding:8px;cursor:pointer;clip-path:var(--pxcircle);background:#5b6bd6}
+.strike{width:120px;height:120px;padding:8px;clip-path:var(--pxcircle);background:#5b6bd6}
 .strike .core{width:100%;height:100%;clip-path:var(--pxcircle);background:radial-gradient(circle at 35% 30%,#1a2370,#0b1240 60%);display:flex;align-items:center;justify-content:center}
 .strike svg{width:70%;height:70%;display:none}
 .strike.on{background:var(--red);animation:pop .3s steps(3)}
@@ -74,14 +74,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 
 /* ---------- board ---------- */
 #board{position:absolute;left:920px;right:30px;top:232px;bottom:24px;display:grid;grid-template-rows:repeat(6,1fr);gap:14px}
-.slot{perspective:1400px;cursor:pointer}
+.slot{perspective:1400px}
 .flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s steps(5,end)}
 .slot.open .flip{transform:rotateX(180deg)}
 .slot.noanim .flip{transition:none}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;clip-path:var(--notch);box-shadow:inset 0 0 0 6px var(--gold),inset 0 0 0 10px var(--ink);display:flex;align-items:center}
 .front{justify-content:center;background:linear-gradient(var(--blue1) 0 12%,#3a52d6 12% 20%,var(--blue1) 20% 55%,var(--blue2) 55%)}
 .front .num{width:150px;height:78px;display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--gold);text-shadow:4px 4px 0 #000;background:var(--ink);clip-path:var(--notch);box-shadow:inset 0 0 0 5px var(--gold)}
-.slot.empty{cursor:default}
 .slot.empty .front{background:#0a0f3c;box-shadow:inset 0 0 0 6px #2a3270,inset 0 0 0 10px var(--ink)}
 .back{transform:rotateX(180deg);background:linear-gradient(var(--rev1) 0 12%,#5f7bff 12% 20%,var(--rev1) 20% 55%,var(--rev2) 55%)}
 .back .ans{flex:1;min-width:0;padding:0 26px 0 34px;font-size:34px;white-space:nowrap;overflow:hidden;text-shadow:4px 4px 0 #000}
@@ -193,12 +192,10 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 .rname{margin-top:12px;height:70px;display:flex;align-items:center;justify-content:center;padding:0 20px;font-size:30px;text-shadow:4px 4px 0 #000;white-space:nowrap;overflow:hidden;clip-path:var(--notch);background:linear-gradient(var(--blue1) 0 50%,var(--blue2) 50%);box-shadow:inset 0 0 0 5px var(--tc),inset 0 0 0 9px var(--ink)}
 .rscore{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:16px}
 .rpts,#rtot{height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;clip-path:var(--notch)}
-.rpts{width:400px;background:var(--ink);box-shadow:inset 0 0 0 6px var(--gold)}
+.rpts{width:440px;background:var(--ink);box-shadow:inset 0 0 0 6px var(--gold)}
 .rpts b{font-size:72px;color:var(--gold);text-shadow:5px 5px 0 #b3001b}
 .rpts span,#rtot span{font-size:13px;color:var(--t1)}
 .rpts.pop b{animation:pop .3s steps(3)}
-.rplus{width:120px;height:110px;font-family:inherit;font-size:30px;color:var(--ink);border:0;cursor:pointer;clip-path:var(--notch);background:linear-gradient(#7dff6a 0 50%,#3ccf4e 50%);box-shadow:inset 0 0 0 5px #1f7a2c}
-.rplus:active{transform:translate(3px,3px)}
 #rtot{position:absolute;left:770px;width:380px;top:892px;background:linear-gradient(var(--blue1) 0 50%,var(--blue2) 50%);box-shadow:inset 0 0 0 6px var(--t1),inset 0 0 0 10px var(--ink)}
 #rtot b{font-size:64px;text-shadow:5px 5px 0 #000}
 .rside.win .rframe{animation:winf .5s steps(2) infinite}
@@ -234,9 +231,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
     <div class="rhead"><div id="rlogo"></div><div id="rtag">RONDA FINAL</div><div id="rtimer"><div class="bar"><i></i></div><b>60</b></div></div>
     <div id="rq"><div id="rqlabel"></div><div id="rqtext"></div></div>
     <div class="rside" id="rs0"><div class="rframe"><div class="rcam"></div></div><div class="rname"></div>
-      <div class="rscore"><div class="rpts"><b>0</b><span>PUNTAJE</span></div><button class="rplus" data-p="0">+1</button></div></div>
+      <div class="rscore"><div class="rpts"><b>0</b><span>PUNTAJE</span></div></div></div>
     <div class="rside" id="rs1"><div class="rframe"><div class="rcam"></div></div><div class="rname"></div>
-      <div class="rscore"><div class="rpts"><b>0</b><span>PUNTAJE</span></div><button class="rplus" data-p="1">+1</button></div></div>
+      <div class="rscore"><div class="rpts"><b>0</b><span>PUNTAJE</span></div></div></div>
     <div id="rtot"><b>0</b><span>TOTAL</span></div>
   </section>
 
@@ -262,29 +259,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
       <div class="fs"><div><span id="fn0"></span><b id="fs0"></b></div><div><span id="fn1"></span><b id="fs1"></b></div></div>
     </div>
     <div id="fcred"><span></span></div>
-    <div class="hint">FLECHA IZQ: VOLVER &nbsp;·&nbsp; SHIFT+N: NUEVO JUEGO</div>
   </div>
 
   <div id="intro" class="screen"></div>
 
   <div id="help"><div class="box">
-    <h2>CONTROLES DEL PRESENTADOR</h2>
+    <h2>PANTALLA DEL JUEGO</h2>
     <table>
-      <tr><td>1 - 6 / CLIC</td><td>Revelar respuesta</td></tr>
-      <tr><td>X / CLIC EN O</td><td>Error (3 errores = robo)</td></tr>
-      <tr><td>BORRAR</td><td>Quitar último error</td></tr>
-      <tr><td>A / B / CLIC</td><td>Elegir equipo en turno</td></tr>
-      <tr><td>ESPACIO</td><td>Dar la bolsa al equipo en turno</td></tr>
-      <tr><td>R</td><td>Mostrar respuestas restantes (sin puntos)</td></tr>
-      <tr><td>T</td><td>Iniciar / parar temporizador</td></tr>
-      <tr><td>I</td><td>Presentación de equipos</td></tr>
-      <tr><td>FLECHA DER / IZQ</td><td>Siguiente / anterior pregunta</td></tr>
-      <tr><td>+ / -</td><td>Ajustar 5 pts al equipo en turno</td></tr>
-      <tr><td>C · M · P · F</td><td>Color cámara · Silenciar todo · Música · Pantalla completa</td></tr>
-      <tr><td>SHIFT+N</td><td>Nuevo juego (borra puntajes)</td></tr>
-      <tr><td>RONDA FINAL</td><td>1 / 2: +1 al jugador · T: tiempo · FLECHAS: pregunta · ENTER: ganador</td></tr>
+      <tr><td>F</td><td>Pantalla completa</td></tr>
+      <tr><td>H / ESC</td><td>Mostrar / ocultar esta ayuda</td></tr>
     </table>
-    <p>Todo esto también se maneja desde config.html (panel del presentador).</p>
+    <p>El juego se controla solo desde config.html (panel del presentador). Aquí no se puede tocar nada para evitar errores.</p>
     <p id="camInfo"></p>
   </div></div>
   <div id="sndHint">CLIC AQUI PARA ACTIVAR EL SONIDO</div>
@@ -579,18 +564,14 @@ function applyConfig() {
   });
   renderPlayers();
 }
-$('#thint').innerHTML = 'ENTER: JUGAR &nbsp;·&nbsp; H: CONTROLES &nbsp;·&nbsp; F: PANTALLA COMPLETA';
-[0, 1].forEach(t => $('#team' + t).addEventListener('click', () => { setActive(t); sync(); }));
+$('#thint').innerHTML = 'F: PANTALLA COMPLETA &nbsp;·&nbsp; H: AYUDA';
 for (let i = 0; i < 3; i++) {
   const d = document.createElement('div');
   d.className = 'strike'; d.innerHTML = `<div class="core">${xsvg()}</div>`;
-  d.addEventListener('click', () => { strike(); sync(); });
   $('#strikes').appendChild(d);
 }
-// En el título, el primer toque solo despierta el sonido (arranca la música); el siguiente empieza el juego
-let wake = false;
-const gesture = () => { wake = !(ac && ac.state === 'running'); audio(); };
-$('#title').addEventListener('click', () => { if (!wake) { start(); sync(); } });
+// Un clic o tecla en la pantalla solo despierta el sonido; el juego se controla desde el panel
+const gesture = () => audio();
 document.addEventListener('pointerdown', gesture);
 applyConfig();
 // Intenta sonar desde el inicio: funciona si el navegador permite autoplay (ver iniciar-evento.bat)
@@ -638,7 +619,6 @@ function renderBoard() {
     s.className = 'slot noanim' + (a ? '' : ' empty') + (S.revealed[i] ? ' open' : '') + (S.unearned[i] ? ' unearned' : '');
     s.innerHTML = `<div class="flip"><div class="face front">${a ? `<div class="num">${i + 1}</div>` : ''}</div>`
       + `<div class="face back">${a ? `<div class="ans">${esc(a[0].toUpperCase())}</div><div class="cnt">${a[1]}</div>` : ''}</div></div>`;
-    s.addEventListener('click', () => { reveal(i); sync(); });
     b.appendChild(s); slots.push(s);
     if (a) fitText(s.querySelector('.ans'), 34, 14);
   }
@@ -1024,7 +1004,6 @@ function rfEnd() {
   }, 2300));
 }
 function rfReopen() { if (!S.rf.done) return; S.rf.done = false; setScreen('ronda'); renderRonda(false); }
-document.querySelectorAll('.rplus').forEach(b => b.addEventListener('click', () => { rfPoint(+b.dataset.p, 1); sync(); }));
 
 function resetGame() {
   S = fresh();
@@ -1078,40 +1057,11 @@ CRG.on(m => {
 
 /* ---------- teclado (respaldo, mismo control que el panel) ---------- */
 function handleKey(e) {
-  const k = e.key, lk = k.toLowerCase();
-  if (k === 'N' && e.shiftKey) { if (confirm('¿Nuevo juego? Se borran los puntajes.')) resetGame(); return; }
-  if (lk === 'h' || (k === 'Escape' && $('#help').classList.contains('show'))) return toggleHelp();
+  const lk = e.key.toLowerCase();
+  if (lk === 'h' || (e.key === 'Escape' && $('#help').classList.contains('show'))) return toggleHelp();
   if (lk === 'f') return document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-  if (lk === 'm') { muted = !muted; applyAudio(); return; }
-  if (lk === 'p') { AUD.musicOn = !AUD.musicOn; applyAudio(); return; }
-  if (lk === 'c') return cycleCam();
-  if (lk === 'i') return intro();
-
-  if (screen === 'title') { if ((k === 'Enter' || k === ' ') && !wake) start(); return; }
-  if (screen === 'final') { if (k === 'ArrowLeft') prev(); return; }
-  if (screen === 'ronda') {
-    if (k === '1' || k === '2') return rfPoint(+k - 1, 1);
-    if (lk === 't') return toggleTimer();
-    if (k === 'ArrowRight') return rfGo(S.rf.q + 1);
-    if (k === 'ArrowLeft') return rfGo(S.rf.q - 1);
-    if (k === 'Enter') return rfEnd();
-    return;
-  }
-
-  if (k >= '1' && k <= '6') return reveal(+k - 1);
-  if (lk === 'x') return strike();
-  if (k === 'Backspace') { e.preventDefault(); return undoStrike(); }
-  if (lk === 'a') return setActive(0);
-  if (lk === 'b') return setActive(1);
-  if (k === ' ') { e.preventDefault(); return awardActive(); }
-  if (lk === 'r') return revealRest();
-  if (lk === 't') return toggleTimer();
-  if (k === '+' || k === '=') return adjust(answering(), 5);
-  if (k === '-') return adjust(answering(), -5);
-  if (k === 'ArrowRight') return next();
-  if (k === 'ArrowLeft') return prev();
 }
-addEventListener('keydown', e => { gesture(); handleKey(e); sync(); });
+addEventListener('keydown', e => { gesture(); handleKey(e); });
 
 /* ---------- fondo: estrellas + grilla ---------- */
 const cv = $('#bg'), cx = cv.getContext('2d');
