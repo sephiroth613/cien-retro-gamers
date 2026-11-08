@@ -477,6 +477,17 @@ const TRACKS = {
     ['A1', 'A2 C3 E3', 'A5 G5 F#5 E5 D#5 E5 F#5 G5'],
     ['B1', 'B2 D#3 F#3', 'F#5 . D#5 . B4 . . .']
   ]},
+  // Ronda final: épica, rápida, bombo en cada negra
+  final: {bpm: 160, lead: .06, hat16: true, drive: true, bars: [
+    ['E2', 'E3 G3 B3', 'E5 . B4 E5 G5 . F#5 E5'],
+    ['C2', 'C3 E3 G3', 'G5 . E5 G5 C6 . B5 A5'],
+    ['D2', 'D3 F#3 A3', 'A5 . F#5 A5 D6 . C6 B5'],
+    ['B1', 'B2 D#3 F#3', 'B5 . F#5 D#5 B4 . D#5 F#5'],
+    ['E2', 'E3 G3 B3', 'G5 F#5 E5 F#5 G5 . B5 .'],
+    ['A1', 'A2 C3 E3', 'C6 B5 A5 B5 C6 . E6 .'],
+    ['C2', 'C3 E3 G3', 'B5 A5 G5 A5 B5 . G5 .'],
+    ['B1', 'B2 D#3 F#3', 'F#5 G5 A5 B5 D#6 . B5 .']
+  ]},
   // Pantalla de ganador
   victory: {bpm: 132, lead: .06, hat16: true, bars: [
     ['C2', 'C4 E4 G4', 'C5 . E5 . G5 . C6 .'],
@@ -492,6 +503,8 @@ const TRACKS = {
 const SEMI = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
 const n2f = n => { const m = /^([A-G])(#?)(\d)$/.exec(n); return 440 * Math.pow(2, (SEMI[m[1]] + (m[2] ? 1 : 0) + (+m[3] + 1) * 12 - 69) / 12); };
 for (const T of Object.values(TRACKS)) T.bars = T.bars.map(([b, c, l]) => ({bass: b, chord: c.split(' '), lead: l.split(' ')}));
+// Ronda final con el reloj corriendo: misma pieza, más rápida
+TRACKS.finalTimer = {...TRACKS.final, bpm: 186};
 
 function playStep(T, step, s, dt) {
   const bar = T.bars[Math.floor(step / 8)], i = step % 8, out = musicBus;
@@ -504,7 +517,7 @@ function playStep(T, step, s, dt) {
   const root = n2f(bar.bass);
   osc(i % 2 ? root * 2 : root, dt * .8, 'triangle', s, .16, out);
   for (let k = 0; k < 2; k++) osc(n2f(bar.chord[(i * 2 + k) % 3]) * 2, dt * .4, 'square', s + k * dt / 2, .018, out);
-  if (i === 0 || i === 4) osc(150, .14, 'sine', s, .35, out, 40);
+  if (i === 0 || i === 4 || (T.drive && i % 2 === 0)) osc(150, .14, 'sine', s, .35, out, 40);
   if (i === 2 || i === 6) noise(.12, s, .12, 1500, out);
   noise(.03, s, .035, 7000, out);
   if (T.hat16) noise(.025, s + dt / 2, .02, 8000, out);
@@ -514,7 +527,7 @@ const mus = {track: null, step: 0, next: 0};
 function musicFor() {
   if (!AUD.musicOn) return null;
   if (screen === 'final') return finalStage ? 'victory' : null;
-  if (screen === 'ronda') return S.rf.done ? (finalStage ? 'victory' : null) : S.timer ? 'tension' : 'game';
+  if (screen === 'ronda') return S.rf.done ? (finalStage ? 'victory' : null) : S.timer ? 'finalTimer' : 'final';
   if (screen !== 'game') return 'title';
   if (S.phase === 'steal') return 'steal';
   return S.timer ? 'tension' : 'game';
