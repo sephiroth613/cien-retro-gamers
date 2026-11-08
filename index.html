@@ -184,6 +184,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Pr
 #rqlabel{position:absolute;left:36px;top:18px;font-size:13px;color:var(--gold)}
 #rqtext{height:100%;font-size:34px;line-height:1.3;text-align:center;text-shadow:3px 3px 0 #000;overflow:hidden;overflow-wrap:break-word}
 #rqtext .ghost{visibility:hidden}
+#rq.ans{box-shadow:inset 0 0 0 6px var(--t1),inset 0 0 0 10px var(--ink);background:linear-gradient(var(--rev1) 0 50%,var(--rev2) 50%)}
+#rq.ans #rqlabel{color:var(--white)}
+#rq.ans #rqtext{color:var(--gold);text-shadow:4px 4px 0 #000;animation:pop .35s steps(4)}
 .rside{--tc:var(--t0);position:absolute;top:274px;width:900px}
 #rs0{left:40px}#rs1{right:40px}
 .rframe{height:520px;padding:16px;clip-path:var(--notch);background:linear-gradient(#2b2f4a 0 50%,#22253c 50%);box-shadow:inset 0 0 0 6px var(--tc),inset 0 0 0 10px var(--ink)}
@@ -535,7 +538,7 @@ setInterval(() => {
 // Sin persistencia: recargar la página (F5) reinicia la partida (la configuración se conserva)
 let screen = 'title';
 const fresh = () => ({q: 0, scores: [0, 0], active: 0, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, player: [0, 0], timer: null,
-  rf: {t: 0, picks: [0, 1], q: 0, pts: [0, 0], done: false}});
+  rf: {t: 0, picks: [0, 1], q: 0, pts: [0, 0], done: false, shown: false}});
 function resetQuestion(q) { Object.assign(S, {q, strikes: 0, revealed: [], unearned: [], pot: 0, phase: 'play', steal: null, timer: null}); }
 let S = fresh();
 try { localStorage.removeItem('cien-retro-gamers-v1'); } catch (e) {}
@@ -961,13 +964,18 @@ function renderRonda(type) {
   });
   rfScores();
   $('#rqlabel').textContent = n ? `PREGUNTA ${R.q + 1} DE ${n}` : 'RONDA FINAL';
-  typeText($('#rqtext'), n ? CFG.final[R.q].pregunta : 'Agrega las preguntas de la ronda final en el panel', 34, 18, type && n);
+  const showAns = R.shown && n && CFG.final[R.q].respuesta.trim();
+  $('#rq').classList.toggle('ans', !!showAns);
+  if (showAns) {
+    ++typeTok; $('#rqlabel').textContent = `RESPUESTA ${R.q + 1}`;
+    $('#rqtext').textContent = px(CFG.final[R.q].respuesta.toUpperCase()); fitText($('#rqtext'), 44, 18);
+  } else typeText($('#rqtext'), n ? CFG.final[R.q].pregunta : 'Agrega las preguntas de la ronda final en el panel', 34, 18, type && n);
   renderTimer();
 }
 function rfStart(a) {
   const ps = CFG.equipos[a.t] && CFG.equipos[a.t].jugadores;
   if (!ps || a.a === a.b || !(ps[a.a] || '').trim() || !(ps[a.b] || '').trim()) return SFX.nope();
-  S.rf = {t: a.t, picks: [a.a, a.b], q: 0, pts: [0, 0], done: false};
+  S.rf = {t: a.t, picks: [a.a, a.b], q: 0, pts: [0, 0], done: false, shown: false};
   setScreen('ronda'); renderRonda(false);
   SFX.start();
   banner('¡RONDA FINAL!', `${rfName(0)} VS ${rfName(1)}`, teamColor(a.t), 2600);
@@ -986,7 +994,15 @@ function rfPoint(k, d) {
 }
 function rfGo(q) {
   if (screen !== 'ronda' || q < 0 || q >= CFG.final.length) return SFX.nope();
-  stopTimer(); S.rf.q = q; renderRonda(true); SFX.select();
+  stopTimer(); S.rf.q = q; S.rf.shown = false; renderRonda(true); SFX.select();
+}
+// Muestra (u oculta) la respuesta correcta de la pregunta actual en la pantalla
+function rfAnswer() {
+  const p = CFG.final[S.rf.q];
+  if (screen !== 'ronda' || !p || !p.respuesta.trim()) return SFX.nope();
+  S.rf.shown = !S.rf.shown;
+  if (S.rf.shown) { stopTimer(); SFX.reveal(); }
+  renderRonda(false);
 }
 function rfEnd() {
   if (screen !== 'ronda' || S.rf.done) return SFX.nope();
@@ -1039,7 +1055,7 @@ const CMD = {
   cam: cycleCam, player: a => { S.player[a.t] = a.i; renderPlayers(); }, nextPlayer: t => nextPlayer(t),
   newgame: resetGame, timer: toggleTimer, stopTimer, intro,
   rfStart, rfShow, rfEnd, rfReopen, rfPoint: a => rfPoint(a.k, a.d), rfGo,
-  rfNext: () => rfGo(S.rf.q + 1), rfPrev: () => rfGo(S.rf.q - 1),
+  rfNext: () => rfGo(S.rf.q + 1), rfPrev: () => rfGo(S.rf.q - 1), rfAnswer,
   sfx: n => { if (BOARD[n]) BOARD[n](); }
 };
 CRG.on(m => {

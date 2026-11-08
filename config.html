@@ -263,13 +263,14 @@ label{display:block;font-size:20px;color:var(--soft);margin:14px 0 4px}
         <div class="qhead"><span id="rfNum">-</span></div>
         <div class="qtext" id="rfQ"></div>
         <div id="rfAns"></div>
+        <div class="btns" style="margin-top:0;margin-bottom:10px"><button class="gold big" data-cmd="rfAnswer" id="rfAnsBtn">MOSTRAR RESPUESTA (R)</button></div>
         <div class="btns"><button data-cmd="rfPrev">◀ ANTERIOR</button><button data-cmd="rfNext">SIGUIENTE ▶</button></div>
         <div class="actions"><button class="big" data-cmd="timer" id="rfTimerBtn">INICIAR TIEMPO (T)</button><div id="rfTimer">--</div></div>
         <div class="rfp" id="rfPts"></div>
         <div id="rfTotal">TOTAL <b>0</b></div>
         <div class="btns"><button class="big red" data-cmd="rfEnd">TERMINAR Y MOSTRAR GANADOR</button></div>
         <div class="btns"><button data-cmd="rfReopen">QUITAR GANADOR Y SEGUIR</button></div>
-        <p class="note">Teclado en esta pestaña: 1 / 2 dar +1 · T tiempo · ← → pregunta</p>
+        <p class="note">Teclado en esta pestaña: 1 / 2 dar +1 · R respuesta · T tiempo · ← → pregunta</p>
       </div>
 
       <div class="card">
@@ -450,7 +451,7 @@ addEventListener('keydown', e => {
   if (e.target.closest('input,textarea,select')) return;
   if ($('#tab-ronda').classList.contains('show')) {
     const k = e.key, c = k === '1' || k === '2' ? ['rfPoint', {k: +k - 1, d: 1}] : k.toLowerCase() === 't' ? ['timer']
-      : k === 'ArrowRight' ? ['rfNext'] : k === 'ArrowLeft' ? ['rfPrev'] : null;
+      : k.toLowerCase() === 'r' ? ['rfAnswer'] : k === 'ArrowRight' ? ['rfNext'] : k === 'ArrowLeft' ? ['rfPrev'] : null;
     if (c) { e.preventDefault(); send(c[0], c[1]); }
     return;
   }
@@ -642,6 +643,10 @@ function renderRF() {
   $('#rfNum').textContent = n ? `PREGUNTA ${(R ? R.q : 0) + 1} DE ${n}` : 'SIN PREGUNTAS';
   $('#rfQ').textContent = q ? q.pregunta : n ? F[0].pregunta : 'Agrega preguntas abajo';
   $('#rfAns').textContent = q && q.respuesta ? 'RESPUESTA: ' + q.respuesta : '';
+  const ab = $('#rfAnsBtn');
+  ab.disabled = !(on && q && q.respuesta.trim());
+  ab.textContent = R && R.shown ? 'OCULTAR RESPUESTA (R)' : 'MOSTRAR RESPUESTA (R)';
+  ab.className = R && R.shown ? 'big' : 'gold big';
   $('#rfPts').innerHTML = [0, 1].map(k => `<div><div class="nm">${R ? pName(R.t, R.picks[k]) : 'JUGADOR ' + (k + 1)}</div>`
     + `<div class="sc">${R ? R.pts[k] : 0}</div><div class="btns"><button class="gold" data-cmd="rfPoint" data-arg='{"k":${k},"d":1}'>+1</button>`
     + `<button data-cmd="rfPoint" data-arg='{"k":${k},"d":-1}'>-1</button></div></div>`).join('');
